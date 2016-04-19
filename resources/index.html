@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Wellcome</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+
+
+    <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
+    <link rel="stylesheet" href="/css/jquery.fileupload.css">
+    <link rel="stylesheet" href="/css/jquery.fileupload-ui.css">
+
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <!--<link rel="stylesheet" href="/bootstrap/css/bootstrap.css">-->
+    <!--<link rel="stylesheet" href="/bootstrap/css/bootstrap-theme.css">-->
+
+    <script src="/js/bootstrap-table.js"></script>
+    <link rel="stylesheet" href="/js/bootstrap-table.css">
+
+
+
+
+</head>
+<body>
+<div class="container">
+    <div id="content">
+        <ul class="nav nav-tabs" data-tabs="tabs">
+            <li class="active"><a href="#home" data-toggle="tab">Wellcome</a></li>
+            <li><a href="#analyse" data-toggle="tab">Bebop flies analyse</a></li>
+            <li><a href="#yellow" data-toggle="tab">Stored flies</a></li>
+        </ul>
+
+        <div id="my-tab-content" class="tab-content">
+            <div class="tab-pane active" id="home">
+                <h1>Bebop Fly file analyzer and visualizer</h1>
+                <p>This web server is dedicated to the Bebop flies, you can store and analyze your flies</p>
+                <br/>
+                <img src="bebop_fly.jpg" width="350px">
+            </div>
+            <div class="tab-pane" id="analyse">
+                <h1>Fly files upload</h1>
+                <p><br/>
+                    <br/>
+                    <br/>
+                    <br/><br/>
+                    Select  <b>one or multiple json files</b> and analyse them alone or globally.<br/>
+                </p>
+                <!-- The file upload form used as target for the file upload widget -->
+                <form id="fileupload" action="/import/" method="POST" enctype="multipart/form-data">
+                    <!-- Redirect browsers with JavaScript disabled to the origin page -->
+                    <noscript><input type="hidden" name="redirect" value="/static/"></noscript>
+                    <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+                    <div class="row fileupload-buttonbar">
+                        <div class="col-lg-7">
+                            <!-- The fileinput-button span is used to style the file input field as button -->
+                            <span class="btn btn-success fileinput-button">
+                                <i class="glyphicon glyphicon-plus"></i>
+                                <span>Add file</span>
+                                <input type="file" name="files[]" multiple>
+                            </span>
+                            <button type="submit" class="btn btn-primary start">
+                                <i class="glyphicon glyphicon-upload"></i>
+                                <span>Import all</span>
+                            </button>
+                            <button type="reset" class="btn btn-warning cancel">
+                                <i class="glyphicon glyphicon-ban-circle"></i>
+                                <span>Clear all</span>
+                            </button>
+                            <!-- The global file processing state -->
+                            <span class="fileupload-process"></span>
+                            <!-- The global file processing state -->
+                            <span class="fileupload-process"></span>
+                        </div>
+                        <!-- The global progress state -->
+                        <div class="col-lg-5 fileupload-progress fade">
+                            <!-- The global progress bar -->
+                            <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar progress-bar-success" style="width:0%;"></div>
+                            </div>
+                            <!-- The extended global progress state -->
+                            <div class="progress-extended">&nbsp;</div>
+                        </div>
+                    </div>
+                    <!-- The table listing the files available for upload/download -->
+                    <table role="presentation" class="table table-striped"><tbody class="files"></tbody></table>
+                </form>
+            </div>
+            <div class="tab-pane" id="yellow">
+
+
+                <h1>Stored flies</h1>
+                <script type="application/javascript">
+                    $('#button').click(function () {
+                           windows.alert("recall refresh")
+                           $('#table').bootstrapTable('refresh');
+                        });
+
+                    function linkFormatter(value, row) {
+                        return '<a href="'+value+'">Get the File</a>';
+                    }
+                </script>
+                <div id="toolbar">
+                    <form>
+                    <button id="button" class="btn btn-default">refresh</button>
+                    </form>
+                </div>
+                <table data-toggle="table" data-url="/list" id="table" data-toolbar="#toolbar">
+                    <tr>
+                        <td>Bebop</td>
+                    </tr>
+                    <thead>
+                    <tr>
+                        <th data-field="serialNumber">Bebop Identifier</th>
+                        <th data-field="flyDate">Fly date</th>
+                        <th data-field="kmzFile" data-formatter="linkFormatter">KMZ file</th>
+                        <th data-field="csvFile" data-formatter="linkFormatter">CSV file</th>
+                        <th data-field="originalFile" data-formatter="linkFormatter">JSON file</th>
+
+                    </tr>
+                    </thead>
+
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- tab moving -->
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $('#tabs').tab();
+        });
+    </script>
+
+    <!-- The template to display files available for upload -->
+    <script id="template-upload" type="text/x-tmpl">
+{% for (var i=0, file; file=o.files[i]; i++) { %}
+    <tr class="template-upload fade">
+        <td>
+            <span class="preview"></span>
+        </td>
+        <td>
+            <p class="name">{%=file.name%}</p>
+            <strong class="error text-danger"></strong>
+        </td>
+        <td>
+            <p class="size">Processing...</p>
+            <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div>
+        </td>
+        <td>
+            {% if (!i && !o.options.autoUpload) { %}
+                <button class="btn btn-primary start" disabled>
+                    <i class="glyphicon glyphicon-upload"></i>
+                    <span>Import</span>
+                </button>
+            {% } %}
+            {% if (!i) { %}
+                <button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Effacer</span>
+                </button>
+            {% } %}
+        </td>
+    </tr>
+{% } %}
+</script>
+    <!-- The template to display files available for download -->
+    <script id="template-download" type="text/x-tmpl">
+{% for (var i=0, file; file=o.files[i]; i++) { %}
+    <tr class="template-download fade">
+        <td>
+            <span class="preview">
+                {% if (file.thumbnailUrl) { %}
+                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}"></a>
+                {% } %}
+            </span>
+        </td>
+        <td>
+            <p class="name">
+                {% if (file.url) { %}
+                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
+                {% } else { %}
+                    <span>{%=file.name%}</span>
+                {% } %}
+            </p>
+            {% if (file.error) { %}
+                <div><span class="label label-danger">Erreur</span> {%=file.error%}</div>
+            {% } else { %}
+                <div><span class="label label-success">Valide</span></div>
+            {% } %}
+        </td>
+        <td>
+            <span class="size">{%=o.formatFileSize(file.size)%}</span>
+        </td>
+        <td>
+            <button class="btn btn-warning cancel">
+                <i class="glyphicon glyphicon-ban-circle"></i>
+                <span>Effacer</span>
+            </button>
+        </td>
+    </tr>
+{% } %}
+</script>
+    <script src="js/vendor/jquery.ui.widget.js"></script>
+    <!-- The Templates plugin is included to render the upload/download listings -->
+    <script src="js/tmpl.min.js"></script>
+    <!-- The Load Image plugin is included for the preview images and image resizing functionality -->
+    <script src="js/load-image.all.min.js"></script>
+    <!-- The Canvas to Blob plugin is included for image resizing functionality -->
+    <script src="js/canvas-to-blob.min.js"></script>
+    <!-- blueimp Gallery script -->
+    <script src="js/jquery.blueimp-gallery.min.js"></script>
+    <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+    <script src="js/jquery.iframe-transport.js"></script>
+    <!-- The basic File Upload plugin -->
+    <script src="js/jquery.fileupload.js"></script>
+    <!-- The File Upload processing plugin -->
+    <script src="js/jquery.fileupload-process.js"></script>
+    <!-- The File Upload image preview & resize plugin -->
+    <script src="js/jquery.fileupload-image.js"></script>
+    <!-- The File Upload audio preview plugin -->
+    <script src="js/jquery.fileupload-audio.js"></script>
+    <!-- The File Upload video preview plugin -->
+    <script src="js/jquery.fileupload-video.js"></script>
+    <!-- The File Upload validation plugin -->
+    <script src="js/jquery.fileupload-validate.js"></script>
+    <!-- The File Upload user interface plugin -->
+    <script src="js/jquery.fileupload-ui.js"></script>
+    <!-- The main application script -->
+    <script src="js/main.js"></script>
+
+</div> <!-- container -->
+
+</body>
+</html>

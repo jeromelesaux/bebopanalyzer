@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.css">
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="/static/js/bootstrap-table.js"></script>
+    <link rel="stylesheet" href="/static/js/bootstrap-table.css">
+</head>
+<body>
+<script>
+    function linkFormatter(value, row) {
+        return '<a href="'+value+'">File</a>';
+    }
+</script>
+
+<table data-toggle="table" data-url="/list" id="table">
+    <tr>
+        <td>Bebop</td>
+    </tr>
+    <thead>
+    <tr>
+        <th data-field="serialNumber">Bebop Identifier</th>
+        <th data-field="flyDate">Fly date</th>
+        <th data-field="kmzFile" data-formatter="linkFormatter">KMZ file</th>
+        <th data-field="csvFile" data-formatter="linkFormatter">CSV file</th>
+    </tr>
+    </thead>
+
+</table>
+</body>
+
+</html>

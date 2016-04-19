@@ -1,0 +1,4 @@
+{
+  "HttpPort" : ":8099",
+  "BasepathStorage" : "Data/"
+}
