@@ -13,7 +13,7 @@ GOARCH=amd64
 
 EXEC=BebopAnalyzer
 
-VERSION=1.0.0
+VERSION=1.1.0
 BUILD_TIME=`date +%FT%T%z`
 PACKAGES := fmt path/filepath
 

@@ -27,3 +27,21 @@ type JsonDataListResponse struct {
 	KmzFile      string `json:"kmzFile"`
 	OriginalFile string `json:"originalFile"`
 }
+
+type GoogleChartColumns struct {
+	Id    string `json:"id"`
+	Label string `json:"label"`
+	Type  string `json:"type"`
+}
+
+type GoogleRowsValues struct {
+	V []interface{} `json:"v"`
+}
+
+type GoogleChartRows struct {
+	C []GoogleRowsValues `json:"c"`
+}
+
+type JsonChartDataResponse struct {
+	Value [][]interface{} `json:""`
+}

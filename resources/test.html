@@ -5,16 +5,37 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css">
-    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.css">
+
+
+    <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
+    <link rel="stylesheet" href="./css/jquery.fileupload.css">
+    <link rel="stylesheet" href="./css/jquery.fileupload-ui.css">
+
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-    <script src="/static/js/bootstrap-table.js"></script>
-    <link rel="stylesheet" href="/static/js/bootstrap-table.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <!--<link rel="stylesheet" href="/bootstrap/css/bootstrap.css">-->
+    <!--<link rel="stylesheet" href="/bootstrap/css/bootstrap-theme.css">-->
+
+    <!--Bootstrap table import -->
+    <script src="./js/bootstrap-table.js"></script>
+    <link rel="stylesheet" href="./js/bootstrap-table.css">
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
 </head>
 <body>
 <script>
     function linkFormatter(value, row) {
-        return '<a href="'+value+'">File</a>';
+        return '<a href="' + value + '">File</a>';
+    }
+
+    function generateJSFormatter(value,row, index) {
+        var s =  row.serialNumber;
+        var f = row.flyDate;
+
+        // console.log(f+ " " + s)
+        return  "<a href=\"#\" onclick=\"generateGraphic('"+s+"','"+f+"');\">Draw the fly</a>";
+
     }
 </script>
 
@@ -28,10 +49,70 @@
         <th data-field="flyDate">Fly date</th>
         <th data-field="kmzFile" data-formatter="linkFormatter">KMZ file</th>
         <th data-field="csvFile" data-formatter="linkFormatter">CSV file</th>
+        <th data-field="serialNumber | flyDate" data-formatter="generateJSFormatter">Get Graphic</th>
     </tr>
     </thead>
-
 </table>
+
+<id id="myChart"style="width: 900px; height: 500px"></id>
+
+<script type="text/javascript">
+    google.charts.load('current', {'packages': ['corechart']});
+    function generateGraphic(serialNumber, flyDate)
+    {
+
+        google.charts.setOnLoadCallback(drawChart(serialNumber,flyDate));
+        function drawChart(serialNumber,flyDate) {
+
+            json = $.ajax({
+                dataType: "json",
+                url: './chart?serialNumber='+ serialNumber +'&flyDate=' +flyDate.replace('+','%2B'),
+                async: false
+            }).responseJSON;
+            console.log(json)
+            var data = new google.visualization.DataTable();
+            data.addColumn('number', 'Time in minutes');
+            data.addColumn('number', 'Speed in M/S');
+            data.addColumn('number', 'Altitude in M');
+            data.addColumn('number', 'Battery level in %');
+            data.addRows(json);
+            var options = {
+                chart: {
+                    title: 'fly of the ' + flyDate,
+                    curveType: 'function',
+                    legend: {position: 'bottom'}
+                },
+                width: 900,
+                height: 500,
+                hAxis: {title: 'fly of the ' + flyDate},
+                vAxes: {
+                    0: {
+                        viewWindowMode: 'explicit',
+                        viewWindow: {
+                            min: 0
+                        },
+                        gridlines: {color: 'transparent'},
+                    },
+                    1: {
+                        gridlines: {color: 'transparent'},
+
+                    },
+                },
+                series: {
+                    0: {targetAxisIndex: 0},
+                    1: {targetAxisIndex: 0},
+                    2: {targetAxisIndex: 1},
+                },
+                colors: ["orange", "blue", "red"]
+            };
+
+
+            var chart = new google.visualization.LineChart(document.getElementById('myChart'));
+            chart.draw(data, options);
+        }
+    }
+</script>
+
 </body>
 
 </html>

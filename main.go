@@ -40,6 +40,7 @@ func main() {
 		http.HandleFunc("/import/", routes.AnalyseFly)
 		http.HandleFunc("/get", routes.GetFile)
 		http.HandleFunc("/list", routes.GetListTree)
+		http.HandleFunc("/chart", routes.GetChart)
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("./resources"))))
 		http.ListenAndServe(Conf.HttpPort, nil)
 	}

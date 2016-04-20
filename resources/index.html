@@ -11,18 +11,19 @@
 
 
     <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
-    <link rel="stylesheet" href="/css/jquery.fileupload.css">
-    <link rel="stylesheet" href="/css/jquery.fileupload-ui.css">
+    <link rel="stylesheet" href="./css/jquery.fileupload.css">
+    <link rel="stylesheet" href="./css/jquery.fileupload-ui.css">
 
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <!--<link rel="stylesheet" href="/bootstrap/css/bootstrap.css">-->
     <!--<link rel="stylesheet" href="/bootstrap/css/bootstrap-theme.css">-->
 
-    <script src="/js/bootstrap-table.js"></script>
-    <link rel="stylesheet" href="/js/bootstrap-table.css">
+    <!--Bootstrap table import -->
+    <script src="./js/bootstrap-table.js"></script>
+    <link rel="stylesheet" href="./js/bootstrap-table.css">
 
-
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 
 </head>
@@ -37,8 +38,8 @@
 
         <div id="my-tab-content" class="tab-content">
             <div class="tab-pane active" id="home">
-                <h1>Bebop Fly file analyzer and visualizer</h1>
-                <p>This web server is dedicated to the Bebop flies, you can store and analyze your flies</p>
+                <h1>Bebop Fly file analyser and visualizer</h1>
+                <p>This web server is dedicated to the Bebop flies, you can store and analyse your flies</p>
                 <br/>
                 <img src="bebop_fly.jpg" width="350px">
             </div>
@@ -51,7 +52,7 @@
                     Select  <b>one or multiple json files</b> and analyse them alone or globally.<br/>
                 </p>
                 <!-- The file upload form used as target for the file upload widget -->
-                <form id="fileupload" action="/import/" method="POST" enctype="multipart/form-data">
+                <form id="fileupload" action="./import/" method="POST" enctype="multipart/form-data">
                     <!-- Redirect browsers with JavaScript disabled to the origin page -->
                     <noscript><input type="hidden" name="redirect" value="/static/"></noscript>
                     <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
@@ -96,20 +97,29 @@
                 <h1>Stored flies</h1>
                 <script type="application/javascript">
                     $('#button').click(function () {
-                           windows.alert("recall refresh")
-                           $('#table').bootstrapTable('refresh');
-                        });
+                        windows.alert("recall refresh")
+                        $('#table').bootstrapTable('refresh');
+                    });
 
                     function linkFormatter(value, row) {
                         return '<a href="'+value+'">Get the File</a>';
                     }
+
+                    function generateJSFormatter(value,row, index) {
+                        var s =  row.serialNumber;
+                        var f = row.flyDate;
+
+                        // console.log(f+ " " + s)
+                        return  "<a href=\"#\" onclick=\"generateGraphic('"+s+"','"+f+"');\">Draw the fly</a>";
+
+                    }
                 </script>
                 <div id="toolbar">
                     <form>
-                    <button id="button" class="btn btn-default">refresh</button>
+                        <button id="button" class="btn btn-default">refresh</button>
                     </form>
                 </div>
-                <table data-toggle="table" data-url="/list" id="table" data-toolbar="#toolbar">
+                <table data-toggle="table" data-url="./list" id="table" data-toolbar="#toolbar">
                     <tr>
                         <td>Bebop</td>
                     </tr>
@@ -120,12 +130,69 @@
                         <th data-field="kmzFile" data-formatter="linkFormatter">KMZ file</th>
                         <th data-field="csvFile" data-formatter="linkFormatter">CSV file</th>
                         <th data-field="originalFile" data-formatter="linkFormatter">JSON file</th>
-
+                        <th data-field="serialNumber | flyDate" data-formatter="generateJSFormatter">Get Graphic</th>
                     </tr>
                     </thead>
-
                 </table>
 
+                <id id="myChart"style="width: 900px; height: 500px"></id>
+
+                <script type="text/javascript">
+                    google.charts.load('current', {'packages': ['corechart']});
+                    function generateGraphic(serialNumber, flyDate)
+                    {
+
+                        google.charts.setOnLoadCallback(drawChart(serialNumber,flyDate));
+                        function drawChart(serialNumber,flyDate) {
+
+                            json = $.ajax({
+                                dataType: "json",
+                                url: './chart?serialNumber='+ serialNumber +'&flyDate=' +flyDate.replace('+','%2B'),
+                                async: false
+                            }).responseJSON;
+                            console.log(json)
+                            var data = new google.visualization.DataTable();
+                            data.addColumn('number', 'Time in minutes');
+                            data.addColumn('number', 'Speed in M/S');
+                            data.addColumn('number', 'Altitude in M');
+                            data.addColumn('number', 'Battery level in %');
+                            data.addRows(json);
+                            var options = {
+                                chart: {
+                                    title: 'fly of the ' + flyDate,
+                                    curveType: 'function',
+                                    legend: {position: 'bottom'}
+                                },
+                                width: 900,
+                                height: 500,
+                                hAxis: {title: 'fly of the ' + flyDate},
+                                vAxes: {
+                                    0: {
+                                        viewWindowMode: 'explicit',
+                                        viewWindow: {
+                                            min: 0
+                                        },
+                                        gridlines: {color: 'transparent'},
+                                    },
+                                    1: {
+                                        gridlines: {color: 'transparent'},
+
+                                    },
+                                },
+                                series: {
+                                    0: {targetAxisIndex: 0},
+                                    1: {targetAxisIndex: 0},
+                                    2: {targetAxisIndex: 1},
+                                },
+                                colors: ["orange", "blue", "red"]
+                            };
+
+
+                            var chart = new google.visualization.LineChart(document.getElementById('myChart'));
+                            chart.draw(data, options);
+                        }
+                    }
+                </script>
             </div>
         </div>
     </div>

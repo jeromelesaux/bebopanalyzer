@@ -75,6 +75,22 @@ func (p *Project) CopyOriginalStruct(pud *model.PUD) (n int64) {
 	return
 }
 
+func (p *Project) LoadPUD(serialNumber string, flyDate string) {
+	path := p.BaseDir + string(filepath.Separator) + serialNumber + string(filepath.Separator) + flyDate + string(filepath.Separator) + "Raw" + string(filepath.Separator) + JSON_FILENAME
+
+	fReader, err := os.Open(path)
+	if err != nil {
+		log.Println("Error while reading file " + path + " with error " + err.Error())
+		return
+	}
+	err = json.NewDecoder(fReader).Decode(&p.Data)
+	if err != nil {
+		log.Println("Error while decode from file " + path + " with error " + err.Error())
+		return
+	}
+	return
+}
+
 func (p *Project) CopyOriginalFile(file string) int64 {
 	input, errOpen := os.Open(file)
 	if errOpen != nil {
@@ -192,9 +208,9 @@ func (p *Project) GetTree() []message.JsonDataListResponse {
 			t := message.JsonDataListResponse{}
 			t.SerialNumber = f.Name()
 			t.FlyDate = subF.Name()
-			t.CsvFile = "/get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&csv=true"
-			t.KmzFile = "/get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&kmz=true"
-			t.OriginalFile = "/get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&original=true"
+			t.CsvFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&csv=true"
+			t.KmzFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&kmz=true"
+			t.OriginalFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&original=true"
 			r = append(r, t)
 		}
 	}
@@ -232,4 +248,28 @@ func (p *Project) GetOriginalFile(serialNumber string, flyDate string) []byte {
 	}
 
 	return f
+}
+
+func (p *Project) GetChartData(serialNumber string, flyDate string) [][]interface{} {
+	m := make([][]interface{}, 0)
+
+	for i := 0; i < len(p.Data.DetailsData); i++ {
+		gpsAvailable := p.Data.ProductGpsAvailableAt(i)
+
+		if gpsAvailable {
+			r := make([]interface{}, 4)
+			time := p.Data.TimeAt(i) / 60000
+			speed := p.Data.SpeedAt(i)
+			altitude := p.Data.AltitudeAt(i) / 1000
+			batteryLevel := p.Data.BatteryLevelAt(i)
+			r[0] = time
+			r[1] = speed
+			r[2] = altitude
+			r[3] = batteryLevel
+			//c := message.JsonChartDataResponse{time, batteryLevel, altitude, speed}
+			//log.Println("time:" + strconv.FormatFloat(time, 'f', 6, 10))
+			m = append(m, r)
+		}
+	}
+	return m
 }
