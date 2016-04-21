@@ -69,7 +69,7 @@
                 url: './chart?serialNumber='+ serialNumber +'&flyDate=' +flyDate.replace('+','%2B'),
                 async: false
             }).responseJSON;
-            console.log(json)
+           // console.log(json)
             var data = new google.visualization.DataTable();
             data.addColumn('number', 'Time in minutes');
             data.addColumn('number', 'Speed in M/S');
@@ -113,6 +113,29 @@
     }
 </script>
 
+<div id="myMap"></div>
+<style>
+
+    #myMap {
+        height: 100%;
+    }
+</style>
+<script type="application/javascript">
+    function initMap() {
+        var map = new google.maps.Map(document.getElementById('myMap'), {
+            zoom: 11,
+            center: {lat: 41.876, lng: -87.624}
+        });
+
+        var ctaLayer = new google.maps.KmlLayer({
+            url: 'http://googlemaps.github.io/js-v2-samples/ggeoxml/cta.kml',
+            map: map
+        });
+    }
+</script>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0nPjEYBM-d5Sa20ebfr46FdXrlCjMNPI&signed_in=true&callback=initMap">
+</script>
 </body>
 
 </html>
