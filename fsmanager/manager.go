@@ -25,6 +25,12 @@ var GOOGLEEARTH_INTERNAL_FILENAME = "doc.kml"
 
 //var BASEDIR_NAME = "Data"
 
+type SortByModified []os.FileInfo
+
+func (f SortByModified) Len() int           { return len(f) }
+func (f SortByModified) Less(i, j int) bool { return f[i].ModTime().Unix() > f[j].ModTime().Unix() }
+func (f SortByModified) Swap(i, j int)      { f[i], f[j] = f[j], f[i] }
+
 type Project struct {
 	BaseDir       string
 	Name          string
@@ -199,7 +205,8 @@ func (p *Project) GetTree() []message.JsonDataListResponse {
 	if err != nil {
 		log.Println("Error while reading basedir :" + root + " " + err.Error())
 	}
-	for _, f := range dir {
+
+	for _, f := range SortByModified(dir) {
 		subDir, err := ioutil.ReadDir(root + string(filepath.Separator) + f.Name())
 		if err != nil {
 			log.Println("Error while reading basedir :" + f.Name() + " " + err.Error())
