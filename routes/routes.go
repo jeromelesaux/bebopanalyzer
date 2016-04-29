@@ -1,10 +1,10 @@
 package routes
 
 import (
-	"BebopAnalyzer/configuration"
-	"BebopAnalyzer/fsmanager"
-	"BebopAnalyzer/model"
 	"archive/zip"
+	"bebopanalyzer/configuration"
+	"bebopanalyzer/fsmanager"
+	"bebopanalyzer/model"
 	"bytes"
 	"encoding/json"
 	"fmt"

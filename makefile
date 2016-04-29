@@ -11,9 +11,9 @@ GOARCH=amd64
 #GOARCH=arm
 
 
-EXEC=BebopAnalyzer
+EXEC=bebopanalyzer
 
-VERSION=1.1.0
+VERSION=1.2.0
 BUILD_TIME=`date +%FT%T%z`
 PACKAGES := fmt path/filepath
 
@@ -24,7 +24,6 @@ LDFLAGS=
 
 .DEFAULT_GOAL: $(EXEC)
 
-
 $(EXEC): organize $(SOURCES)
 		@echo "    Compilation des sources ${BUILD_TIME}"
 		@GOPATH=$(PWD)/../.. GOOS=${GOOS} GOARCH=${GOARCH} go build ${LDFLAGS} -o ${EXEC}-${VERSION} $(SOURCEDIR)/main.go
@@ -32,7 +31,7 @@ $(EXEC): organize $(SOURCES)
 
 deps: init
 		@echo "    Download packages"
-		@go get -d -v $(PACKAGES)
+		@$(foreach element,$(PACKAGES),go get -d -v $(element);)
 
 organize: deps
 		@echo "    Go FMT"
@@ -40,14 +39,10 @@ organize: deps
 
 init: clean
 		@echo "    Init of the project"
-		@export GOPATH=$(PWD)
-		$(shell export GOPATH=$(pwd))
 
 execute:
 		./${EXEC}-${VERSION}
 
 clean:
-		@rm -f *.o core
 		@if [ -f "${EXEC}-${VERSION}" ] ; then rm ${EXEC}-${VERSION} ; fi
 		@echo "    Nettoyage effectuee"
-

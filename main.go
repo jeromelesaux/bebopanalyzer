@@ -1,10 +1,10 @@
 package main
 
 import (
-	"BebopAnalyzer/configuration"
-	"BebopAnalyzer/fsmanager"
-	"BebopAnalyzer/model"
-	"BebopAnalyzer/routes"
+	"bebopanalyzer/configuration"
+	"bebopanalyzer/fsmanager"
+	"bebopanalyzer/model"
+	"bebopanalyzer/routes"
 	"fmt"
 	"net/http"
 	"os"

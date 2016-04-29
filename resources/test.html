@@ -113,29 +113,32 @@
     }
 </script>
 
-<div id="myMap"></div>
 <style>
-
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
     #myMap {
         height: 100%;
     }
 </style>
+<div id="myMap"></div>
 <script type="application/javascript">
     function initMap() {
         var map = new google.maps.Map(document.getElementById('myMap'), {
             zoom: 11,
-            center: {lat: 41.876, lng: -87.624}
+            center: {lat: -28, lng: 137}
         });
 
-        var ctaLayer = new google.maps.KmlLayer({
-            url: 'http://googlemaps.github.io/js-v2-samples/ggeoxml/cta.kml',
-            map: map
+        var georssLayer = new google.maps.KmlLayer({
+            url: 'http://api.flickr.com/services/feeds/geo/?g=322338@N20&lang=en-us&format=feed-georss'
         });
+        georssLayer.setMap(map);
     }
 </script>
 <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0nPjEYBM-d5Sa20ebfr46FdXrlCjMNPI&signed_in=true&callback=initMap">
-</script>
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0nPjEYBM-d5Sa20ebfr46FdXrlCjMNPI&signed_in=true&callback=initMap"></script>
 </body>
 
 </html>

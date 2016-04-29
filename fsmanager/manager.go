@@ -1,10 +1,10 @@
 package fsmanager
 
 import (
-	"BebopAnalyzer/kml"
-	"BebopAnalyzer/message"
-	"BebopAnalyzer/model"
 	"archive/zip"
+	"bebopanalyzer/kml"
+	"bebopanalyzer/message"
+	"bebopanalyzer/model"
 	"encoding/csv"
 	"encoding/json"
 	"encoding/xml"
