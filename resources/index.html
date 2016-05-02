@@ -9,7 +9,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
 
-
     <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
     <link rel="stylesheet" href="./css/jquery.fileupload.css">
     <link rel="stylesheet" href="./css/jquery.fileupload-ui.css">
@@ -49,7 +48,7 @@
                     <br/>
                     <br/>
                     <br/><br/>
-                    Select  <b>one or multiple json files</b> and analyse them alone or globally.<br/>
+                    Select <b>one or multiple json files</b> and analyse them alone or globally.<br/>
                 </p>
                 <!-- The file upload form used as target for the file upload widget -->
                 <form id="fileupload" action="./import/" method="POST" enctype="multipart/form-data">
@@ -80,7 +79,8 @@
                         <!-- The global progress state -->
                         <div class="col-lg-5 fileupload-progress fade">
                             <!-- The global progress bar -->
-                            <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress progress-striped active" role="progressbar" aria-valuemin="0"
+                                 aria-valuemax="100">
                                 <div class="progress-bar progress-bar-success" style="width:0%;"></div>
                             </div>
                             <!-- The extended global progress state -->
@@ -88,7 +88,9 @@
                         </div>
                     </div>
                     <!-- The table listing the files available for upload/download -->
-                    <table role="presentation" class="table table-striped"><tbody class="files"></tbody></table>
+                    <table role="presentation" class="table table-striped">
+                        <tbody class="files"></tbody>
+                    </table>
                 </form>
             </div>
             <div class="tab-pane" id="yellow">
@@ -102,15 +104,15 @@
                     });
 
                     function linkFormatter(value, row) {
-                        return '<a href="'+value+'">Get the File</a>';
+                        return '<a href="' + value + '">Get the File</a>';
                     }
 
-                    function generateJSFormatter(value,row, index) {
-                        var s =  row.serialNumber;
+                    function generateJSFormatter(value, row, index) {
+                        var s = row.serialNumber;
                         var f = row.flyDate;
 
                         // console.log(f+ " " + s)
-                        return  "<a href=\"#\" onclick=\"generateGraphic('"+s+"','"+f+"');\">Draw the fly</a>";
+                        return "<a href=\"#\" onclick=\"generateGraphic('" + s + "','" + f + "');\">Draw the fly</a>";
 
                     }
                 </script>
@@ -119,49 +121,68 @@
                     @include box-sizing(border-box);
                     }
 
-                    $pad: 20px;
+                    $
+                    pad:
+
+                    20
+                    px
+
+                    ;
 
                     .grid {
                         background: white;
-                        margin: 0 0 $pad 0;
+                        margin: 0 0 $ pad 0;
 
-                    &:after {
-                         /* Or @extend clearfix */
-                         content: "";
-                         display: table;
-                         clear: both;
-                     }
+                    &
+                    :after {
+                        /* Or @extend clearfix */
+                        content: "";
+                        display: table;
+                        clear: both;
+                    }
+
                     }
 
                     [class*='col-'] {
                         float: left;
-                        padding-right: $pad;
-                    .grid &:last-of-type {
-                               padding-right: 0;
-                           }
+                        padding-right: $ pad;
+
+                    .grid
+
+                    &
+                    :last-of-type {
+                        padding-right: 0;
+                    }
+
                     }
                     .col-2-3 {
                         width: 66.66%;
                     }
+
                     .col-1-3 {
                         width: 33.33%;
                     }
+
                     .col-1-2 {
                         width: 50%;
                     }
+
                     .col-1-4 {
                         width: 25%;
                     }
+
                     .col-1-8 {
                         width: 12.5%;
                     }
 
                     /* Opt-in outside padding */
                     .grid-pad {
-                        padding: $pad 0 $pad $pad;
+                        padding: $ pad 0 $ pad $ pad;
+
                     [class*='col-']:last-of-type {
-                        padding-right: $pad;
+                        padding-right: $ pad;
                     }
+
                     }
                     .chart {
                         width: 100%;
@@ -173,41 +194,38 @@
                         <button id="button" class="btn btn-default">refresh</button>
                     </form>
                 </div>
-                <table data-toggle="table" data-url="./list" id="table" data-toolbar="#toolbar">
+                <table data-toggle="table" class="display" data-url="./list" id="table" data-toolbar="#toolbar"
+                       data-sort-name="flyDuration" data-sort-order="desc">
                     <tr>
                         <td>Bebop</td>
                     </tr>
                     <thead>
                     <tr>
-                        <th data-field="serialNumber">Bebop Identifier</th>
-                        <th data-field="flyDate">Fly date</th>
+                        <th data-field="serialNumber" data-sortable="true">Bebop Identifier</th>
+                        <th data-field="flyDate" data-sortable="true">Fly date</th>
                         <th data-field="kmzFile" data-formatter="linkFormatter">KMZ file</th>
                         <th data-field="csvFile" data-formatter="linkFormatter">CSV file</th>
                         <th data-field="originalFile" data-formatter="linkFormatter">JSON file</th>
                         <th data-field="serialNumber | flyDate" data-formatter="generateJSFormatter">Get Graphic</th>
-                        <th data-field="flyDuration">Fly Duration in minutes</th>
+                        <th data-field="flyDuration" data-sortable="true">Fly Duration in minutes</th>
                     </tr>
                     </thead>
                 </table>
 
-                <div class="grid">
-                    <div class="col-1-2">
-                        <div id="myChart" class="chart"></div>
-                    </div>
-                </div>
+
+                <div id="myChart" width="80%"></div>
 
 
                 <script type="text/javascript">
                     google.charts.load('current', {'packages': ['corechart']});
-                    function generateGraphic(serialNumber, flyDate)
-                    {
+                    function generateGraphic(serialNumber, flyDate) {
 
-                        google.charts.setOnLoadCallback(drawChart(serialNumber,flyDate));
-                        function drawChart(serialNumber,flyDate) {
+                        google.charts.setOnLoadCallback(drawChart(serialNumber, flyDate));
+                        function drawChart(serialNumber, flyDate) {
 
                             json = $.ajax({
                                 dataType: "json",
-                                url: './chart?serialNumber='+ serialNumber +'&flyDate=' +flyDate.replace('+','%2B'),
+                                url: './chart?serialNumber=' + serialNumber + '&flyDate=' + flyDate.replace('+', '%2B'),
                                 async: false
                             }).responseJSON;
                             //console.log(json)
@@ -217,14 +235,16 @@
                             data.addColumn('number', 'Altitude in M');
                             data.addColumn('number', 'Battery level in %');
                             data.addRows(json);
+                            var width = .9 * window.innerHeight;
+                            var height = .4 * window.innerWidth;
                             var options = {
                                 chart: {
                                     title: 'fly of the ' + flyDate,
                                     curveType: 'function',
                                     legend: {position: 'bottom'}
                                 },
-                                width: 900,
-                                height: 500,
+                                width: width,
+                                height: height,
                                 hAxis: {title: 'fly of the ' + flyDate},
                                 vAxes: {
                                     0: {
@@ -250,9 +270,12 @@
 
                             var chart = new google.visualization.LineChart(document.getElementById('myChart'));
                             chart.draw(data, options);
-                            $(window).resize(function(){
-                                chart;
-                            });
+                            $(document).ready(function () {
+                                $(window).resize(function () {
+                                    chart.draw(data, options)
+                                });
+                            })
+
                         }
                     }
                 </script>
@@ -298,7 +321,8 @@
         </td>
     </tr>
 {% } %}
-</script>
+
+    </script>
     <!-- The template to display files available for download -->
     <script id="template-download" type="text/x-tmpl">
 {% for (var i=0, file; file=o.files[i]; i++) { %}
@@ -335,7 +359,8 @@
         </td>
     </tr>
 {% } %}
-</script>
+
+    </script>
     <script src="js/vendor/jquery.ui.widget.js"></script>
     <!-- The Templates plugin is included to render the upload/download listings -->
     <script src="js/tmpl.min.js"></script>
