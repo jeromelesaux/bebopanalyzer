@@ -26,6 +26,7 @@ type JsonDataListResponse struct {
 	CsvFile      string `json:"csvFile"`
 	KmzFile      string `json:"kmzFile"`
 	OriginalFile string `json:"originalFile"`
+	FlyDuration  string `json:"flyDuration"`
 }
 
 type GoogleChartColumns struct {

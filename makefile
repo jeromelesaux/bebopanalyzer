@@ -9,6 +9,7 @@ SOURCES := $(shell find $(SOURCEDIR) -name '*.go')
 GOOS=linux
 GOARCH=amd64
 #GOARCH=arm
+GOARM=7
 
 
 EXEC=bebopanalyzer
@@ -26,7 +27,11 @@ LDFLAGS=
 
 $(EXEC): organize $(SOURCES)
 		@echo "    Compilation des sources ${BUILD_TIME}"
-		@GOPATH=$(PWD)/../.. GOOS=${GOOS} GOARCH=${GOARCH} go build ${LDFLAGS} -o ${EXEC}-${VERSION} $(SOURCEDIR)/main.go
+		@if  [ "arm" = "${GOARCH}" ]; then\
+		    GOPATH=$(PWD)/../.. GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC}-${VERSION} $(SOURCEDIR)/main.go;\
+		else\
+            GOPATH=$(PWD)/../.. GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC}-${VERSION} $(SOURCEDIR)/main.go;\
+        fi
 		@echo "    ${EXEC}-${VERSION} generated."
 
 deps: init

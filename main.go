@@ -25,8 +25,7 @@ func main() {
 	if len(os.Args) == 3 {
 		bebopJsonFile := os.Args[2]
 		fmt.Println("Parsing " + bebopJsonFile)
-		pud := &model.PUD{}
-		pud = pud.Load(bebopJsonFile)
+		pud := model.Load(bebopJsonFile)
 		project := fsmanager.Project{BaseDir: Conf.BasepathStorage, Name: pud.SerialNumber, Data: pud, Date: pud.Date}
 		project.CreateBaseFS()
 		project.CopyOriginalFile(bebopJsonFile)

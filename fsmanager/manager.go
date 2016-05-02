@@ -218,6 +218,8 @@ func (p *Project) GetTree() []message.JsonDataListResponse {
 			t.CsvFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&csv=true"
 			t.KmzFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&kmz=true"
 			t.OriginalFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&original=true"
+			p := model.Load(root + string(filepath.Separator) + f.Name() + string(filepath.Separator) + t.FlyDate + string(filepath.Separator) + "Raw" + string(filepath.Separator) + JSON_FILENAME)
+			t.FlyDuration = fmt.Sprintf("%.2f", (float32(p.TotalRunTime) / 60000))
 			r = append(r, t)
 		}
 	}

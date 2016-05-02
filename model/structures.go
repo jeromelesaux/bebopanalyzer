@@ -160,7 +160,7 @@ func (pud *PUD) SpeedAt(index int) float64 {
 	return pud.DetailsData[index][value].(float64)
 }
 
-func (p *PUD) Load(input string) *PUD {
+func Load(input string) *PUD {
 	pud := &PUD{}
 	file, errOpen := os.Open(input)
 	if errOpen != nil {
