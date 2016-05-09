@@ -14,7 +14,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
-	"path/filepath"
 	"strings"
 )
 
@@ -60,11 +59,7 @@ func AnalyseFly(w http.ResponseWriter, r *http.Request) {
 			}
 
 			project := fsmanager.Project{BaseDir: Conf.BasepathStorage, Name: pud.SerialNumber, Data: pud, Date: pud.Date}
-			project.CreateBaseFS()
-			project.CopyOriginalStruct(pud)
-			project.CreateCsvFile(project.GeneratedData + string(filepath.Separator) + fsmanager.CSV_FILE_NAME)
-			project.CreateKmlFile(project.GeneratedData + string(filepath.Separator) + fsmanager.GOOGLEEARTH_FILENAME)
-
+			project.PerformAnalyse(pud)
 			FileInfoAsResponse(w, fileInfo)
 			return
 		}

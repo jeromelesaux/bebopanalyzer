@@ -40,6 +40,13 @@ type Project struct {
 	Data          *model.PUD
 }
 
+func (p *Project) PerformAnalyse(pud *model.PUD) {
+	p.CreateBaseFS()
+	p.CopyOriginalStruct(pud)
+	p.CreateCsvFile(p.GeneratedData + string(filepath.Separator) + CSV_FILE_NAME)
+	p.CreateKmlFile(p.GeneratedData + string(filepath.Separator) + GOOGLEEARTH_FILENAME)
+}
+
 func (p *Project) CreateBaseFS() {
 
 	if p.Data != nil {

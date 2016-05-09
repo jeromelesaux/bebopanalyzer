@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
 )
 
 var Conf configuration.AppConfiguration
@@ -16,7 +15,7 @@ var Conf configuration.AppConfiguration
 func main() {
 
 	if len(os.Args) == 1 {
-		fmt.Println("Usage : app configuration-file.json bebop-fly.json")
+		fmt.Println("Usage : app configuration-file.json bebop-fly.json (optionnal for web server)")
 		return
 	}
 
@@ -27,10 +26,7 @@ func main() {
 		fmt.Println("Parsing " + bebopJsonFile)
 		pud := model.Load(bebopJsonFile)
 		project := fsmanager.Project{BaseDir: Conf.BasepathStorage, Name: pud.SerialNumber, Data: pud, Date: pud.Date}
-		project.CreateBaseFS()
-		project.CopyOriginalFile(bebopJsonFile)
-		project.CreateCsvFile(project.GeneratedData + string(filepath.Separator) + fsmanager.CSV_FILE_NAME)
-		project.CreateKmlFile(project.GeneratedData + string(filepath.Separator) + fsmanager.GOOGLEEARTH_FILENAME)
+		project.PerformAnalyse(pud)
 		fmt.Println("job done and generated new file at " + project.GeneratedData)
 	} else {
 		fmt.Println("Starting server web at port " + Conf.HttpPort)
