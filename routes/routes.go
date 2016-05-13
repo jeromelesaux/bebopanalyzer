@@ -21,6 +21,11 @@ var Conf *configuration.AppConfiguration
 
 func AnalyseFly(w http.ResponseWriter, r *http.Request) {
 	log.Print("Calling AnalyseFly.")
+	fis := &FileInfos{Files: []*FileInfo{}}
+
+	defer func() {
+		JsonAsResponse(w, fis)
+	}()
 
 	w.Header().Set("Content-Type", "application/javascript")
 	mr, err := r.MultipartReader()
@@ -50,20 +55,20 @@ func AnalyseFly(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if name := part.FormName(); name != "" {
-			log.Println("name is : " + name)
 			fileInfo, pud := getReader(part)
 			log.Println("Fileinfo : " + fileInfo.Name + " with error :" + fileInfo.Error)
-			if fileInfo.Error != "" {
-				FileInfoAsResponse(w, fileInfo)
-				return
+			fis.Files = append(fis.Files, fileInfo)
+			if fileInfo.Error == "" {
+				go importFly(pud, w)
 			}
-
-			project := fsmanager.Project{BaseDir: Conf.BasepathStorage, Name: pud.SerialNumber, Data: pud, Date: pud.Date}
-			project.PerformAnalyse(pud)
-			FileInfoAsResponse(w, fileInfo)
-			return
+			continue
 		}
 	}
+}
+func importFly(pud *model.PUD, w http.ResponseWriter) {
+	project := fsmanager.Project{BaseDir: Conf.BasepathStorage, Name: pud.SerialNumber, Data: pud, Date: pud.Date}
+	project.PerformAnalyse(pud)
+	return
 }
 
 func getReader(p *multipart.Part) (fi *FileInfo, pud *model.PUD) {

@@ -14,7 +14,7 @@ GOARM=7
 
 EXEC=bebopanalyzer
 
-VERSION=1.3.0
+VERSION=1.4.0
 BUILD_TIME=`date +%FT%T%z`
 PACKAGES := fmt path/filepath
 
