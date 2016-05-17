@@ -6,7 +6,7 @@ MV=mv
 SOURCEDIR=.
 SOURCES := $(shell find $(SOURCEDIR) -name '*.go')
 #GOPATH=$(SOURCEDIR)/
-GOOS=linux
+GOOS=windows
 GOARCH=amd64
 #GOARCH=arm
 GOARM=7
@@ -51,3 +51,7 @@ execute:
 clean:
 		@if [ -f "${EXEC}-${VERSION}" ] ; then rm ${EXEC}-${VERSION} ; fi
 		@echo "    Nettoyage effectuee"
+
+package:  ${EXEC}
+		@zip -r ${EXEC}-${GOOS}-${GOARCH}-${VERSION}.zip ./${EXEC}-${VERSION} resources
+		@echo "    Archive ${EXEC}-${GOOS}-${GOARCH}-${VERSION}.zip created"
