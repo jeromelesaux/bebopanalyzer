@@ -55,3 +55,7 @@ clean:
 package:  ${EXEC}
 		@zip -r ${EXEC}-${GOOS}-${GOARCH}-${VERSION}.zip ./${EXEC}-${VERSION} resources
 		@echo "    Archive ${EXEC}-${GOOS}-${GOARCH}-${VERSION}.zip created"
+
+audit:   ${EXEC}
+		@go tool vet -all ./
+		@echo "    Audit effectue"

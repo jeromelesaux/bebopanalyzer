@@ -28,7 +28,7 @@ type Placemark struct {
 	Name        string `xml:"kml:name"`
 	Description string `xml:"kml:description"`
 	//Point       string       `xml:"kml:coordinates"`
-	LineString []LineString `xml="kml:LineString"`
+	LineString []LineString `xml:"kml:LineString"`
 }
 
 // linestring google template
