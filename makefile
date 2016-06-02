@@ -23,7 +23,7 @@ LIBS=
 
 LDFLAGS=	
 
-.DEFAULT_GOAL: $(EXEC)
+.DEFAULT_GOAL:= $(EXEC)
 
 $(EXEC): organize $(SOURCES)
 		@echo "    Compilation des sources ${BUILD_TIME}"
