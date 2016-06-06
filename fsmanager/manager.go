@@ -61,14 +61,14 @@ func (p *Project) CreateBaseFS() {
 		fmt.Println("Error with error : " + err.Error())
 	}
 	fmt.Println("Creating path : " + p.RawData)
-	err2 := os.MkdirAll(p.RawData, os.ModePerm)
-	if err2 != nil {
-		fmt.Println("Error with error : " + err2.Error())
+	err = os.MkdirAll(p.RawData, os.ModePerm)
+	if err != nil {
+		fmt.Println("Error with error : " + err.Error())
 	}
 	fmt.Println("Creating path : " + p.GeneratedData)
-	err3 := os.MkdirAll(p.GeneratedData, os.ModePerm)
-	if err3 != nil {
-		fmt.Println("Error with error : " + err3.Error())
+	err = os.MkdirAll(p.GeneratedData, os.ModePerm)
+	if err != nil {
+		fmt.Println("Error with error : " + err.Error())
 	}
 
 }
@@ -80,9 +80,9 @@ func (p *Project) CopyOriginalStruct(pud *model.PUD) (n int64) {
 	}
 	defer output.Close()
 
-	errCopy := json.NewEncoder(output).Encode(pud)
-	if errCopy != nil {
-		println("Error while copyinh file : " + errCopy.Error())
+	err = json.NewEncoder(output).Encode(pud)
+	if err != nil {
+		println("Error while copyinh file : " + err.Error())
 	}
 
 	return
@@ -116,9 +116,9 @@ func (p *Project) CopyOriginalFile(file string) int64 {
 		println("Error while creating file : " + err.Error())
 	}
 	defer output.Close()
-	n, errCopy := io.Copy(output, input)
-	if errCopy != nil {
-		println("Error while copyinh file : " + errCopy.Error())
+	n, err := io.Copy(output, input)
+	if err != nil {
+		println("Error while copyinh file : " + err.Error())
 	}
 	fmt.Println("Wrote " + strconv.FormatInt(n, 10) + " from file : " + file)
 	return n
@@ -133,9 +133,9 @@ func (p *Project) CreateCsvFile(file string) {
 	defer csvHandler.Close()
 	w := csv.NewWriter(csvHandler)
 	w.Comma = ';'
-	errSave := w.WriteAll(records)
-	if errSave != nil {
-		println("Error while copying csv file : " + errSave.Error())
+	err = w.WriteAll(records)
+	if err != nil {
+		println("Error while copying csv file : " + err.Error())
 	}
 	w.Flush()
 }

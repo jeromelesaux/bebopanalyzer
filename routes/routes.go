@@ -15,11 +15,25 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 )
 
 var Conf *configuration.AppConfiguration
 
+func importFlyWG(pud *model.PUD, fis *FileInfos, fileInfo *FileInfo, wg *sync.WaitGroup) {
+	wg.Add(1)
+	go func() {
+		fis.Files = append(fis.Files, fileInfo)
+		if fileInfo.Error == "" {
+			importFly(pud)
+		}
+		wg.Done()
+	}()
+
+}
+
 func AnalyseFly(w http.ResponseWriter, r *http.Request) {
+	var wg sync.WaitGroup
 	log.Print("Calling AnalyseFly.")
 	fis := &FileInfos{Files: []*FileInfo{}}
 
@@ -57,15 +71,14 @@ func AnalyseFly(w http.ResponseWriter, r *http.Request) {
 		if name := part.FormName(); name != "" {
 			fileInfo, pud := getReader(part)
 			log.Println("Fileinfo : " + fileInfo.Name + " with error :" + fileInfo.Error)
-			fis.Files = append(fis.Files, fileInfo)
-			if fileInfo.Error == "" {
-				go importFly(pud, w)
-			}
+			importFlyWG(pud, fis, fileInfo, &wg)
 			continue
 		}
 	}
+	wg.Wait()
 }
-func importFly(pud *model.PUD, w http.ResponseWriter) {
+
+func importFly(pud *model.PUD) {
 	project := fsmanager.Project{BaseDir: Conf.BasepathStorage, Name: pud.SerialNumber, Data: pud, Date: pud.Date}
 	project.PerformAnalyse(pud)
 	return

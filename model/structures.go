@@ -162,13 +162,13 @@ func (pud *PUD) SpeedAt(index int) float64 {
 
 func Load(input string) *PUD {
 	pud := &PUD{}
-	file, errOpen := os.Open(input)
-	if errOpen != nil {
-		fmt.Println("Error while opening file ", input, errOpen.Error())
+	file, err := os.Open(input)
+	if err != nil {
+		fmt.Println("Error while opening file ", input, err.Error())
 	}
 	defer file.Close()
 	decoder := json.NewDecoder(file)
-	err := decoder.Decode(pud)
+	err = decoder.Decode(pud)
 	if err != nil {
 		fmt.Println("error:", err)
 	}

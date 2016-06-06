@@ -13,16 +13,16 @@ type AppConfiguration struct {
 
 func LoadConfiguration(file string) *AppConfiguration {
 	conf := new(AppConfiguration)
-	confFile, errOpen := os.Open(file)
+	confFile, err := os.Open(file)
 
-	if errOpen != nil {
-		fmt.Println("Error while opening file ", file, errOpen.Error())
+	if err != nil {
+		fmt.Println("Error while opening file ", file, err.Error())
 	}
 	defer confFile.Close()
 	decoder := json.NewDecoder(confFile)
-	errDecode := decoder.Decode(conf)
-	if errDecode != nil {
-		fmt.Println("Cannot decode configuration file." + errDecode.Error())
+	err = decoder.Decode(conf)
+	if err != nil {
+		fmt.Println("Cannot decode configuration file." + err.Error())
 	}
 	return conf
 }

@@ -6,7 +6,7 @@ MV=mv
 SOURCEDIR=.
 SOURCES := $(shell find $(SOURCEDIR) -name '*.go')
 #GOPATH=$(SOURCEDIR)/
-GOOS=windows
+GOOS=linux
 GOARCH=amd64
 #GOARCH=arm
 GOARM=7
@@ -57,5 +57,5 @@ package:  ${EXEC}
 		@echo "    Archive ${EXEC}-${GOOS}-${GOARCH}-${VERSION}.zip created"
 
 audit:   ${EXEC}
-		@go tool vet -all ./
+		@go tool vet -all -shadow ./
 		@echo "    Audit effectue"
