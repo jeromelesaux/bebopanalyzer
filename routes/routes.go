@@ -174,6 +174,19 @@ func GetChart(w http.ResponseWriter, r *http.Request) {
 	JsonAsResponse(w, data)
 }
 
+func GetMaps(w http.ResponseWriter, r *http.Request) {
+	log.Println("GetMaps calling.")
+	p := fsmanager.Project{}
+	p.BaseDir = Conf.BasepathStorage
+
+	serialNumber := r.URL.Query().Get("serialNumber")
+	log.Println("SerialNumber:" + serialNumber)
+	flyDate := r.URL.Query().Get("flyDate")
+	log.Println("flyDate:" + flyDate)
+	p.LoadPUD(serialNumber, flyDate)
+	data := p.GetMapsData(serialNumber, flyDate)
+	JsonAsResponse(w, data)
+}
 func FileAsResponse(w http.ResponseWriter, streamBytes []byte, filename string) {
 	log.Println("Writing file.")
 	b := bytes.NewBuffer(streamBytes)

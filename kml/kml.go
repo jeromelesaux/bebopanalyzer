@@ -25,33 +25,29 @@ var AltitudeMode = [...]string{
 
 //Placemark template
 type Placemark struct {
-	Name        string `xml:"kml:name"`
-	Description string `xml:"kml:description"`
+	Name        string `xml:"name"`
+	Description string `xml:"description"`
 	//Point       string       `xml:"kml:coordinates"`
-	LineString []LineString `xml:"kml:LineString"`
+	LineString []LineString `xml:"LineString"`
 }
 
 // linestring google template
 type LineString struct {
-	Extrude      int    `xml:"kml:extrude"`
-	AltitudeMode string `xml:"kml:altitudeMode"`
-	Coordinates  string `xml:"kml:coordinates"`
+	Extrude      int    `xml:"extrude"`
+	AltitudeMode string `xml:"altitudeMode"`
+	Coordinates  string `xml:"coordinates"`
 }
 
 type Document struct {
-	Name      string      `xml:"kml:name"`
-	Placemark []Placemark `xml:"kml:Placemark"`
+	Name      string      `xml:"name"`
+	Placemark []Placemark `xml:"Placemark"`
 }
 
 //Kml template
 type Kml struct {
-	XMLName       xml.Name `xml:"kml:kml"`
-	Namespace     string   `xml:"xmlns,attr"`
-	GxNamespace   string   `xml:"xmlns:gx,attr"`
-	KmlNamespace  string   `xml:"xmlns:kml,attr"`
-	AtomNamespace string   `xml:"xmlns:atom,attr"`
-	XalNamespace  string   `xml:"xmlns:xal,attr"`
-	Document      Document `xml:"kml:Document"`
+	XMLName   xml.Name `xml:"kml"`
+	Namespace string   `xml:"xmlns,attr"`
+	Document  Document `xml:"Document"`
 }
 
 func NewKML(namespace string, numPlacemarks int) *Kml {
@@ -61,10 +57,10 @@ func NewKML(namespace string, numPlacemarks int) *Kml {
 		namespace = "http://www.opengis.net/kml/2.2"
 	}
 	kml.Namespace = namespace
-	kml.AtomNamespace = "http://www.w3.org/2005/Atom"
-	kml.GxNamespace = "http://www.google.com/kml/ext/2.2"
-	kml.KmlNamespace = "http://www.opengis.net/kml/2.2"
-	kml.XalNamespace = "urn:oasis:names:tc:ciq:xsdschema:xAL:2.0"
+	//kml.AtomNamespace = "http://www.w3.org/2005/Atom"
+	//kml.GxNamespace = "http://www.google.com/kml/ext/2.2"
+	//kml.KmlNamespace = "http://www.opengis.net/kml/2.2"
+	//kml.XalNamespace = "urn:oasis:names:tc:ciq:xsdschema:xAL:2.0"
 	kml.Document.Placemark = make([]Placemark, numPlacemarks)
 	return kml
 }

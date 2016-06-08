@@ -289,3 +289,24 @@ func (p *Project) GetChartData(serialNumber string, flyDate string) [][]interfac
 	}
 	return m
 }
+
+func (p *Project) GetMapsData(serialNumber string, flyDate string) []message.Point {
+	m := []message.Point{}
+	log.Println("Entered in GetMapsData")
+	for i := 0; i < len(p.Data.DetailsData); i++ {
+		gpsAvailable := p.Data.ProductGpsAvailableAt(i)
+
+		if gpsAvailable {
+			latitude := p.Data.ProductGpsLatidudeAt(i)
+			longitude := p.Data.ProductGpsLongitudeAt(i)
+			time := p.Data.TimeAt(i) / 60000
+			name := strconv.FormatFloat(time, 'f', 8, 64)
+			if latitude != 500. && longitude != 500. {
+				point := message.Point{Name: name, Description: "", Latitude: latitude, Longitude: longitude}
+				m = append(m, point)
+			}
+		}
+	}
+
+	return m
+}
