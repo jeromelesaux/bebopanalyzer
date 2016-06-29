@@ -28,14 +28,19 @@ type Point struct {
 }
 
 
+type Description struct {
+	Data string `xml:",cdata"`
+}
+
 //Placemark template
 type Placemark struct {
 	Name        string `xml:"name"`
-	Description string `xml:"description"`
+	Description Description `xml:"description"`
 	StyleUrl string `xml:"styleUrl,omitempty"`
 	Point       Point       `xml:"Point,omitempty"`
 	LineString []LineString `xml:"LineString,omitempty"`
 }
+
 
 // linestring google template
 type LineString struct {
@@ -69,6 +74,9 @@ type Document struct {
 type Kml struct {
 	XMLName   xml.Name `xml:"kml"`
 	Namespace string   `xml:"xmlns,attr"`
+	AtomNamespace string `xml:"xmlns:atom,attr"`
+	GxNamespace string `xml:"xmlns:gx,attr"`
+	KmlNamespace string `xml:"xmlns:kml,attr"`
 	Document  Document `xml:"Document"`
 }
 
@@ -79,9 +87,9 @@ func NewKML(namespace string, numPlacemarks int) *Kml {
 		namespace = "http://www.opengis.net/kml/2.2"
 	}
 	kml.Namespace = namespace
-	//kml.AtomNamespace = "http://www.w3.org/2005/Atom"
-	//kml.GxNamespace = "http://www.google.com/kml/ext/2.2"
-	//kml.KmlNamespace = "http://www.opengis.net/kml/2.2"
+	kml.AtomNamespace = "http://www.w3.org/2005/Atom"
+	kml.GxNamespace = "http://www.google.com/kml/ext/2.2"
+	kml.KmlNamespace = "http://www.opengis.net/kml/2.2"
 	//kml.XalNamespace = "urn:oasis:names:tc:ciq:xsdschema:xAL:2.0"
 	kml.Document.Placemark = make([]Placemark, numPlacemarks)
 	return kml
