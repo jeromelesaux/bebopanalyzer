@@ -23,12 +23,18 @@ var AltitudeMode = [...]string{
 	"relativeToSeaFloor",
 }
 
+type Point struct {
+	Coordinates  string `xml:"coordinates"`
+}
+
+
 //Placemark template
 type Placemark struct {
 	Name        string `xml:"name"`
 	Description string `xml:"description"`
-	//Point       string       `xml:"kml:coordinates"`
-	LineString []LineString `xml:"LineString"`
+	StyleUrl string `xml:"styleUrl,omitempty"`
+	Point       Point       `xml:"Point,omitempty"`
+	LineString []LineString `xml:"LineString,omitempty"`
 }
 
 // linestring google template
@@ -38,8 +44,24 @@ type LineString struct {
 	Coordinates  string `xml:"coordinates"`
 }
 
+type Icon struct {
+	Href string `xml:"href"`
+	Scale float64 `xml:"scale"`
+}
+
+type IconStyle struct {
+	Id string `xml:"id,attr"`
+	Icon Icon `xml:"Icon"`
+}
+
+type Style struct {
+	Id string `xml:"id,attr"`
+	IconStyle IconStyle `xml:"IconStyle"`
+}
+
 type Document struct {
 	Name      string      `xml:"name"`
+	Style Style `xml:"Style,omitempty"`
 	Placemark []Placemark `xml:"Placemark"`
 }
 
