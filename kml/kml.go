@@ -24,9 +24,8 @@ var AltitudeMode = [...]string{
 }
 
 type Point struct {
-	Coordinates  string `xml:"coordinates"`
+	Coordinates string `xml:"coordinates"`
 }
-
 
 type Description struct {
 	Data string `xml:",cdata"`
@@ -34,13 +33,12 @@ type Description struct {
 
 //Placemark template
 type Placemark struct {
-	Name        string `xml:"name"`
-	Description Description `xml:"description"`
-	StyleUrl string `xml:"styleUrl,omitempty"`
-	Point       Point       `xml:"Point,omitempty"`
-	LineString []LineString `xml:"LineString,omitempty"`
+	Name        string       `xml:"name"`
+	Description Description  `xml:"description"`
+	StyleUrl    string       `xml:"styleUrl,omitempty"`
+	Point       Point        `xml:"Point,omitempty"`
+	LineString  []LineString `xml:"LineString,omitempty"`
 }
-
 
 // linestring google template
 type LineString struct {
@@ -50,34 +48,34 @@ type LineString struct {
 }
 
 type Icon struct {
-	Href string `xml:"href"`
+	Href  string  `xml:"href"`
 	Scale float64 `xml:"scale"`
 }
 
 type IconStyle struct {
-	Id string `xml:"id,attr"`
-	Icon Icon `xml:"Icon"`
+	Id   string `xml:"id,attr"`
+	Icon Icon   `xml:"Icon"`
 }
 
 type Style struct {
-	Id string `xml:"id,attr"`
+	Id        string    `xml:"id,attr"`
 	IconStyle IconStyle `xml:"IconStyle"`
 }
 
 type Document struct {
 	Name      string      `xml:"name"`
-	Style Style `xml:"Style,omitempty"`
+	Style     Style       `xml:"Style,omitempty"`
 	Placemark []Placemark `xml:"Placemark"`
 }
 
 //Kml template
 type Kml struct {
-	XMLName   xml.Name `xml:"kml"`
-	Namespace string   `xml:"xmlns,attr"`
-	AtomNamespace string `xml:"xmlns:atom,attr"`
-	GxNamespace string `xml:"xmlns:gx,attr"`
-	KmlNamespace string `xml:"xmlns:kml,attr"`
-	Document  Document `xml:"Document"`
+	XMLName       xml.Name `xml:"kml"`
+	Namespace     string   `xml:"xmlns,attr"`
+	AtomNamespace string   `xml:"xmlns:atom,attr"`
+	GxNamespace   string   `xml:"xmlns:gx,attr"`
+	KmlNamespace  string   `xml:"xmlns:kml,attr"`
+	Document      Document `xml:"Document"`
 }
 
 func NewKML(namespace string, numPlacemarks int) *Kml {

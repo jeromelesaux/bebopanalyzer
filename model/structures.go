@@ -8,24 +8,24 @@ import (
 )
 
 type PUD struct {
-	Version               string
-	SoftwareVersion       string `json:"software_version"`
-	HardwareVersion       string `json:"hardware_version"`
-	Date                  string
-	ProductId             int64  `json:"product_id"`
-	SerialNumber          string `json:"serial_number"`
-	ProductName           string `json:"product_name"`
-	Uuid                  string
-	RunOrigin             int     `json:"run_origin"`
-	ControllerModel       string  `json:"controller_model"`
-	ControllerApplication string  `json:"controller_application"`
-	ProductStyle          string  `json:"product_style"`
-	ProductAccessory      string  `json:"product_accessory"`
-	GpsAvailable          bool    `json:"gps_available"`
-	GpsLatitude           float64 `json:"gps_latitude"`
-	GpsLongitude          float64 `json:"gps_longitude"`
-	Crash                 int
-	Jump                  int
+	Version               string          `json:"version"`
+	SoftwareVersion       string          `json:"software_version"`
+	HardwareVersion       string          `json:"hardware_version"`
+	Date                  string          `json:"date"`
+	ProductId             int64           `json:"product_id"`
+	SerialNumber          string          `json:"serial_number"`
+	ProductName           string          `json:"product_name"`
+	Uuid                  string          `json:"uuid"`
+	RunOrigin             int             `json:"run_origin"`
+	ControllerModel       string          `json:"controller_model"`
+	ControllerApplication string          `json:"controller_application"`
+	ProductStyle          interface{}     `json:"product_style"`
+	ProductAccessory      interface{}     `json:"product_accessory"`
+	GpsAvailable          bool            `json:"gps_available"`
+	GpsLatitude           float64         `json:"gps_latitude"`
+	GpsLongitude          float64         `json:"gps_longitude"`
+	Crash                 int             `json:"crash"`
+	Jump                  int             `json:"jump"`
 	RunTime               int             `json:"run_time"`
 	TotalRunTime          int             `json:"total_run_time"`
 	DetailsHeaders        []string        `json:"details_headers"`
@@ -36,6 +36,7 @@ type DetailValue struct {
 	time                       float64
 	battery_level              float64
 	controller_gps_longitude   float64
+	controller_gps_latitude    float64
 	flying_state               float64
 	alert_state                float64
 	wifi_signal                float64
@@ -43,6 +44,7 @@ type DetailValue struct {
 	product_gps_longitude      float64
 	product_gps_latitude       float64
 	product_gps_position_error float64
+	product_gps_sv_number      int64
 	speed_vx                   float64
 	speed_vy                   float64
 	speed_vz                   float64

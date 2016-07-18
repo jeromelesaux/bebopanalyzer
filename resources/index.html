@@ -3,8 +3,6 @@
 <head>
     <meta charset="utf-8">
     <title>Wellcome</title>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
@@ -15,8 +13,6 @@
 
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-    <!--<link rel="stylesheet" href="/bootstrap/css/bootstrap.css">-->
-    <!--<link rel="stylesheet" href="/bootstrap/css/bootstrap-theme.css">-->
 
     <!--Bootstrap table import -->
     <script src="./js/bootstrap-table.js"></script>
@@ -26,7 +22,6 @@
 
     <!-- Map depedencies -->
     <link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
-    <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js'></script>
     <script type='text/javascript' src='http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js?2'></script>
 
 </head>
@@ -36,7 +31,7 @@
         <ul class="nav nav-tabs" data-tabs="tabs">
             <li class="active"><a href="#home" data-toggle="tab">Wellcome</a></li>
             <li><a href="#analyse" data-toggle="tab">Bebop flies analyse</a></li>
-            <li><a href="#yellow" data-toggle="tab">Stored flies</a></li>
+            <li><a href="#board" data-toggle="tab">Stored flies</a></li>
         </ul>
 
         <div id="my-tab-content" class="tab-content">
@@ -97,7 +92,7 @@
                     </table>
                 </form>
             </div>
-            <div class="tab-pane" id="yellow">
+            <div class="tab-pane" id="board">
 
 
                 <h1>Stored flies</h1>
@@ -114,8 +109,6 @@
                     function generateJSFormatter(value, row, index) {
                         var s = row.serialNumber;
                         var f = row.flyDate;
-
-                        // console.log(f+ " " + s)
                         return "<a href=\"#\" onclick=\"generateGraphic('" + s + "','" + f + "');\">Draw the fly</a>";
 
                     }
@@ -123,78 +116,9 @@
                     function generateFlyVisualFormatter(value,row, index) {
                         var s =  row.serialNumber;
                         var f = row.flyDate;
-
-                        // console.log(f+ " " + s)
-                        return  "<a href=\"#\" onclick=\"generateMap('"+s+"','"+f+"');\">Draw the fly</a>";
+                        return  "<a href=\"#\" onclick=\"generateMap('"+s+"','"+f+"');\">Display the fly map</a>";
                     }
                 </script>
-                <style type="text/css">
-                    * {
-                    @include box-sizing(border-box);
-                    }
-
-                    $pad:20px;
-
-                    .grid {
-                        background: white;
-                        margin: 0 0 $ pad 0;
-
-                    &
-                    :after {
-                        /* Or @extend clearfix */
-                        content: "";
-                        display: table;
-                        clear: both;
-                    }
-
-                    }
-
-                    [class*='col-'] {
-                        float: left;
-                        padding-right: $pad;
-
-                    .grid
-
-                    &
-                    :last-of-type {
-                        padding-right: 0;
-                    }
-
-                    }
-                    .col-2-3 {
-                        width: 66.66%;
-                    }
-
-                    .col-1-3 {
-                        width: 33.33%;
-                    }
-
-                    .col-1-2 {
-                        width: 50%;
-                    }
-
-                    .col-1-4 {
-                        width: 25%;
-                    }
-
-                    .col-1-8 {
-                        width: 12.5%;
-                    }
-
-                    /* Opt-in outside padding */
-                    .grid-pad {
-                        padding: $pad 0 $pad $pad;
-
-                    [class*='col-']:last-of-type {
-                        padding-right: $pad;
-                    }
-
-                    }
-                    .chart {
-                        width: 100%;
-                        height: 600px;
-                    }
-                </style>
                 <div id="toolbar">
                     <form>
                         <button id="button" class="btn btn-default">refresh</button>
@@ -220,7 +144,53 @@
                 </table>
 
 
-                <div id="myChart" width="80%"></div>
+                <div id="flyLabel"></div>
+
+                <div id="flyMap" style="width: 800px; height: 440px; border: 1px solid #AAA;"></div>
+
+                <script type="application/javascript">
+                    var map = L.map('flyMap', {
+                        center: [0.0, 0.0],
+                        minZoom: 1,
+                        zoom: 1
+                    });
+                    mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+                    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; ' + mapLink + ' Contributors',
+                        maxZoom: 20,
+                    }).addTo(map);
+                    var polyline;
+
+
+
+                    function generateMap(serialNumber, flyDate) {
+                        $('#flyLabel').html("Fly date : " + flyDate);
+                        $('#flyLabel')
+                                .css('color','blue')
+                                .css('font-size','35px');
+
+                        json = $.ajax({
+                            dataType: "json",
+                            url: './displayFly?serialNumber='+ serialNumber +'&flyDate=' +flyDate.replace('+','%2B'),
+                            async: false
+                        }).responseJSON;
+
+
+
+                        var latlngs = [];
+                        for (var i = 0; i < json.length; ++i) {
+                            var p = L.latLng(json[i].lat,json[i].lng);
+                            latlngs[i] = p;
+                        }
+                        console.log(latlngs);
+                        polyline = L.polyline(latlngs,{color:'red',lineJoin: 'round'}).addTo(map);
+                        console.log(polyline);
+                        map.fitBounds(polyline.getBounds());
+                    }
+                </script>
+
+
+                <div id="myChart" style="width: 800px; height: 440px; border: 1px solid #AAA;"></div>
 
 
                 <script type="text/javascript">
@@ -229,7 +199,10 @@
 
                         google.charts.setOnLoadCallback(drawChart(serialNumber, flyDate));
                         function drawChart(serialNumber, flyDate) {
-
+                            $('#flyLabel').html("Fly date : " + flyDate);
+                            $('#flyLabel')
+                                    .css('color','blue')
+                                    .css('font-size','50px');
                             json = $.ajax({
                                 dataType: "json",
                                 url: './chart?serialNumber=' + serialNumber + '&flyDate=' + flyDate.replace('+', '%2B'),
@@ -286,46 +259,8 @@
                         }
                     }
                 </script>
-                <div id="map" style="width: 800px; height: 440px; border: 1px solid #AAA;"></div>
-
-                <script type="application/javascript">
-                    var map = L.map('map', {
-                        center: [20.0, 5.0],
-                        minZoom: 2,
-                        zoom: 2
-                    });
-                    var polyline;
 
 
-
-                    function generateMap(serialNumber, flyDate) {
-                        if (polyline!=null) {
-                            map.removeLayer(polyline);
-                        }
-                        mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
-                        L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            attribution: '&copy; ' + mapLink + ' Contributors',
-                            maxZoom: 22,
-                        }).addTo(map);
-
-                        json = $.ajax({
-                            dataType: "json",
-                            url: './displayFly?serialNumber='+ serialNumber +'&flyDate=' +flyDate.replace('+','%2B'),
-                            async: false
-                        }).responseJSON;
-
-
-
-                        var latlngs = [];
-                        for (var i = 0; i < json.length; ++i) {
-                            var p = L.latLng(json[i].lat,json[i].lng);
-                            latlngs[i] = p;
-                        }
-
-                        polyline = L.polyline(latlngs,{color:'red',lineJoin: 'round'}).addTo(map);
-                        map.fitBounds(polyline.getBounds());
-                    }
-                </script>
             </div>
         </div>
     </div>

@@ -90,7 +90,7 @@ func (p *Project) CopyOriginalStruct(pud *model.PUD) (n int64) {
 
 func (p *Project) LoadPUD(serialNumber string, flyDate string) {
 	path := p.BaseDir + string(filepath.Separator) + serialNumber + string(filepath.Separator) + flyDate + string(filepath.Separator) + "Raw" + string(filepath.Separator) + JSON_FILENAME
-
+	log.Println("path to search :" + path)
 	fReader, err := os.Open(path)
 	if err != nil {
 		log.Println("Error while reading file " + path + " with error " + err.Error())
@@ -147,7 +147,7 @@ func (p *Project) CreateKmlFile(filepath string) {
 	kmlObject := kml.NewKML("", 1)
 	placemark := kmlObject.Document.Placemark[0]
 	placemark.Name = name
-	placemark.Description = description
+	placemark.Description.Data = description
 
 	lineString := kml.LineString{}
 	lineString.AltitudeMode = kml.AltitudeMode[kml.RelativeToGround]
@@ -292,15 +292,16 @@ func (p *Project) GetChartData(serialNumber string, flyDate string) [][]interfac
 
 func (p *Project) GetMapsData(serialNumber string, flyDate string) []message.Point {
 	m := []message.Point{}
-	log.Println("Entered in GetMapsData")
-	for i := 0; i < len(p.Data.DetailsData); i++ {
+	log.Println("Entered in GetMapsData and data length is " + strconv.Itoa(len(p.Data.DetailsData)))
+	for i, _ := range p.Data.DetailsData {
 		gpsAvailable := p.Data.ProductGpsAvailableAt(i)
-
+		//log.Println("GpsIsavailable :" + strconv.FormatBool(gpsAvailable))
 		if gpsAvailable {
 			latitude := p.Data.ProductGpsLatidudeAt(i)
 			longitude := p.Data.ProductGpsLongitudeAt(i)
 			time := p.Data.TimeAt(i) / 60000
 			name := strconv.FormatFloat(time, 'f', 8, 64)
+			//log.Println("latitude:" + strconv.FormatFloat(latitude, 'f', 10, 64) + "&longitude:" + strconv.FormatFloat(longitude, 'f', 10, 64))
 			if latitude != 500. && longitude != 500. {
 				point := message.Point{Name: name, Description: "", Latitude: latitude, Longitude: longitude}
 				m = append(m, point)

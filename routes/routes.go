@@ -103,9 +103,13 @@ func getReader(p *multipart.Part) (fi *FileInfo, pud *model.PUD) {
 	br := bytes.NewReader(b)
 	z, _ := zip.NewReader(br, int64(len(b)))
 	fi.Size = int64(len(b))
+	fmt.Println(fi)
 	for _, zf := range z.File {
 		reader, _ := zf.Open()
-		json.NewDecoder(reader).Decode(pud)
+		err := json.NewDecoder(reader).Decode(pud)
+		if err != nil {
+			fmt.Println("Error while unmarshalling file with error " + err.Error())
+		}
 		return
 	}
 
