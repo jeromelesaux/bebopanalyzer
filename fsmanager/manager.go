@@ -145,6 +145,7 @@ func (p *Project) CreateKmlFile(filepath string) {
 	description := "Fly " + p.Data.Date + " for the drone " + p.Data.ProductName + "<br>Serial number " + p.Data.SerialNumber + "<br>Version " + p.Data.Version + "<br>Hardware version " + p.Data.HardwareVersion + "<br>Software version " + p.Data.SoftwareVersion + "<br>UUID " + p.Data.Uuid + "<br>Number of crashs " + strconv.Itoa(p.Data.Crash) + "<br>Controller application " + p.Data.ControllerApplication + "<br>Controller model " + p.Data.ControllerModel + "<br>Fly duration " + strconv.Itoa(p.Data.TotalRunTime/60000) + " minutes"
 
 	kmlObject := kml.NewKML("", 1)
+	kmlObject.Document.Name = name
 	placemark := kmlObject.Document.Placemark[0]
 	placemark.Name = name
 	placemark.Description.Data = description

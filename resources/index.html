@@ -103,20 +103,24 @@
                     });
 
                     function linkFormatter(value, row) {
-                        return '<a href="' + value + '">Get the File</a>';
+
+                        return '<button type="button" onclick="window.location.href=\'' + value + '\'" class="btn btn-default"><i class="glyphicon glyphicon-file"></i><span></span></button>'
+                        //return '<button onclick="window.location.href=\'' + value + '\'">Get the File</button>';
                     }
 
                     function generateJSFormatter(value, row, index) {
                         var s = row.serialNumber;
                         var f = row.flyDate;
-                        return "<a href=\"#\" onclick=\"generateGraphic('" + s + "','" + f + "');\">Draw the fly</a>";
+                        return '<button type="button" onclick=\"generateGraphic(\'' + s + '\',\'' + f + '\');\" class="btn btn-default"><i class="glyphicon glyphicon-stats"></i><span></span></button>'
+                        //return "<button onclick=\"generateGraphic('" + s + "','" + f + "');\">Draw the fly</button>";
 
                     }
 
                     function generateFlyVisualFormatter(value,row, index) {
                         var s =  row.serialNumber;
                         var f = row.flyDate;
-                        return  "<a href=\"#\" onclick=\"generateMap('"+s+"','"+f+"');\">Display the fly map</a>";
+                        return '<button type="button" onclick=\"generateMap(\'' + s + '\',\'' + f + '\');\" class="btn btn-default"><i class="glyphicon glyphicon-road"></i><span></span></button>'
+                        //return  "<button href=\"#\" onclick=\"generateMap('"+s+"','"+f+"');\">Display the fly map</button>";
                     }
                 </script>
                 <div id="toolbar">
@@ -166,8 +170,8 @@
                     function generateMap(serialNumber, flyDate) {
                         $('#flyLabel').html("Fly date : " + flyDate);
                         $('#flyLabel')
-                                .css('color','blue')
-                                .css('font-size','35px');
+                                .css('color','black')
+                                .css('font-size','30px');
 
                         json = $.ajax({
                             dataType: "json",
@@ -201,8 +205,8 @@
                         function drawChart(serialNumber, flyDate) {
                             $('#flyLabel').html("Fly date : " + flyDate);
                             $('#flyLabel')
-                                    .css('color','blue')
-                                    .css('font-size','50px');
+                                    .css('color','black')
+                                    .css('font-size','30px');
                             json = $.ajax({
                                 dataType: "json",
                                 url: './chart?serialNumber=' + serialNumber + '&flyDate=' + flyDate.replace('+', '%2B'),
