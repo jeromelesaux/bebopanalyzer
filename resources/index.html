@@ -21,7 +21,7 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
     <!-- Map depedencies -->
-    <link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+    <link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css"/>
     <script type='text/javascript' src='http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js?2'></script>
 
 </head>
@@ -116,8 +116,8 @@
 
                     }
 
-                    function generateFlyVisualFormatter(value,row, index) {
-                        var s =  row.serialNumber;
+                    function generateFlyVisualFormatter(value, row, index) {
+                        var s = row.serialNumber;
                         var f = row.flyDate;
                         return '<button type="button" onclick=\"generateMap(\'' + s + '\',\'' + f + '\');\" class="btn btn-default"><i class="glyphicon glyphicon-road"></i><span></span></button>'
                         //return  "<button href=\"#\" onclick=\"generateMap('"+s+"','"+f+"');\">Display the fly map</button>";
@@ -141,16 +141,53 @@
                         <th data-field="csvFile" data-formatter="linkFormatter">CSV file</th>
                         <th data-field="originalFile" data-formatter="linkFormatter">JSON file</th>
                         <th data-field="serialNumber | flyDate" data-formatter="generateJSFormatter">Get Graphic</th>
-                        <th data-field="serialNumber | flyDate" data-formatter="generateFlyVisualFormatter">Display fly</th>
+                        <th data-field="serialNumber | flyDate" data-formatter="generateFlyVisualFormatter">Display
+                            fly
+                        </th>
                         <th data-field="flyDuration" data-sortable="true">Fly Duration in minutes</th>
                     </tr>
                     </thead>
                 </table>
 
 
-                <div id="flyLabel"></div>
+                <style type="text/css">
 
-                <div id="flyMap" style="width: 800px; height: 440px; border: 1px solid #AAA;"></div>
+                    .modal-dialog {
+                        width: 100%; /* New width for default modal */
+                        height: 100%;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .modal-content {
+                        width: 100%;
+                        min-height: 100%;
+                        border-radius: 0;
+                    }
+
+                </style>
+
+                <!-- Modal -->
+                <div class="modal fade" id="myModal0" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                <h4 class="modal-title" id="myModalLabel0">Map</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div id="flyMap" style="width: 800px; height: 600px; border: 1px solid #AAA;"></div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
 
                 <script type="application/javascript">
                     var map = L.map('flyMap', {
@@ -166,47 +203,57 @@
                     var polyline;
 
 
-
                     function generateMap(serialNumber, flyDate) {
-                        $('#flyLabel').html("Fly date : " + flyDate);
-                        $('#flyLabel')
-                                .css('color','black')
-                                .css('font-size','30px');
+
 
                         json = $.ajax({
                             dataType: "json",
-                            url: './displayFly?serialNumber='+ serialNumber +'&flyDate=' +flyDate.replace('+','%2B'),
+                            url: './displayFly?serialNumber=' + serialNumber + '&flyDate=' + flyDate.replace('+', '%2B'),
                             async: false
                         }).responseJSON;
 
 
-
                         var latlngs = [];
                         for (var i = 0; i < json.length; ++i) {
-                            var p = L.latLng(json[i].lat,json[i].lng);
+                            var p = L.latLng(json[i].lat, json[i].lng);
                             latlngs[i] = p;
                         }
-                        console.log(latlngs);
-                        polyline = L.polyline(latlngs,{color:'red',lineJoin: 'round'}).addTo(map);
-                        console.log(polyline);
+                        // console.log(latlngs);
+                        polyline = L.polyline(latlngs, {color: 'red', lineJoin: 'round'}).addTo(map);
+                        // console.log(polyline);
                         map.fitBounds(polyline.getBounds());
+                        $("#myModal0").modal('show');
                     }
                 </script>
 
+                <!-- Modal -->
+                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                <h4 class="modal-title" id="myModalLabel">Stats</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div id="flyChart" style="width: 800px; height: 600px; border: 1px solid #AAA;"></div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                <div id="myChart" style="width: 800px; height: 440px; border: 1px solid #AAA;"></div>
+
 
 
                 <script type="text/javascript">
                     google.charts.load('current', {'packages': ['corechart']});
+                    var tag= $('<div id="flyChart"></div>');
                     function generateGraphic(serialNumber, flyDate) {
 
                         google.charts.setOnLoadCallback(drawChart(serialNumber, flyDate));
                         function drawChart(serialNumber, flyDate) {
-                            $('#flyLabel').html("Fly date : " + flyDate);
-                            $('#flyLabel')
-                                    .css('color','black')
-                                    .css('font-size','30px');
                             json = $.ajax({
                                 dataType: "json",
                                 url: './chart?serialNumber=' + serialNumber + '&flyDate=' + flyDate.replace('+', '%2B'),
@@ -252,14 +299,9 @@
                             };
 
 
-                            var chart = new google.visualization.LineChart(document.getElementById('myChart'));
+                            var chart = new google.visualization.LineChart(document.getElementById('flyChart'));
                             chart.draw(data, options);
-                            $(document).ready(function () {
-                                $(window).resize(function () {
-                                    chart.draw(data, options)
-                                });
-                            })
-
+                            $("#myModal").modal('show');
                         }
                     }
                 </script>
@@ -308,6 +350,10 @@
     </tr>
 {% } %}
 
+
+
+
+
     </script>
     <!-- The template to display files available for download -->
     <script id="template-download" type="text/x-tmpl">
@@ -345,6 +391,10 @@
         </td>
     </tr>
 {% } %}
+
+
+
+
 
     </script>
     <script src="js/vendor/jquery.ui.widget.js"></script>
