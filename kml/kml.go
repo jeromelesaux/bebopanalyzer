@@ -24,7 +24,7 @@ var AltitudeMode = [...]string{
 }
 
 type Point struct {
-	Coordinates string `xml:"coordinates"`
+	Coordinates string `xml:"coordinates, omitempty"`
 }
 
 type Description struct {
@@ -42,9 +42,9 @@ type Placemark struct {
 
 // linestring google template
 type LineString struct {
-	Extrude      int    `xml:"extrude"`
-	AltitudeMode string `xml:"altitudeMode"`
-	Coordinates  string `xml:"coordinates"`
+	Extrude      int    `xml:"extrude,omitempty"`
+	AltitudeMode string `xml:"altitudeMode,omitempty"`
+	Coordinates  string `xml:"coordinates,omitempty"`
 }
 
 type Icon struct {
