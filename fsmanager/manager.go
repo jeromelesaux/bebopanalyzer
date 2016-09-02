@@ -9,6 +9,8 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"github.com/metakeule/fmtdate"
+	"github.com/ptrv/go-gpx"
 	"io"
 	"io/ioutil"
 	"log"
@@ -16,11 +18,13 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var CSV_FILE_NAME = "data.csv"
 var JSON_FILENAME = "original.json"
 var GOOGLEEARTH_FILENAME = "fly.kmz"
+var GPX_FILENAME = "fly.gpx"
 var GOOGLEEARTH_INTERNAL_FILENAME = "doc.kml"
 
 //var BASEDIR_NAME = "Data"
@@ -225,6 +229,7 @@ func (p *Project) GetTree() []message.JsonDataListResponse {
 			t.FlyDate = subF.Name()
 			t.CsvFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&csv=true"
 			t.KmzFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&kmz=true"
+			t.GpxFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&gpx=true"
 			t.OriginalFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&original=true"
 			p := model.Load(root + string(filepath.Separator) + f.Name() + string(filepath.Separator) + t.FlyDate + string(filepath.Separator) + "Raw" + string(filepath.Separator) + JSON_FILENAME)
 			t.FlyDuration = fmt.Sprintf("%.2f", (float32(p.TotalRunTime) / 60000))
@@ -311,4 +316,43 @@ func (p *Project) GetMapsData(serialNumber string, flyDate string) []message.Poi
 	}
 
 	return m
+}
+
+func (p *Project) GetGPXData(serialNumber string, flyDate string) []byte {
+	gpxObject := &gpx.Gpx{}
+	person := &gpx.Person{Name: p.Data.ControllerModel + " " + p.Data.ControllerApplication}
+	gpxObject.Metadata = &gpx.Metadata{}
+	gpxObject.Metadata.Author = person
+	gpxObject.Metadata.Timestamp = p.Data.Date
+	trk := gpx.Trk{}
+	trk.Name = p.Data.Date
+	trkSeg := gpx.Trkseg{}
+
+	startTime, err := fmtdate.Parse("YYYY-MM-DDThhmmss+0000", p.Data.Date)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	for key, _ := range p.Data.DetailsData {
+		secondes := p.Data.TimeAt(key) / 60000
+		when := time.Duration(secondes) * time.Second
+		startTime = startTime.Add(when)
+
+		trkpt := gpx.Wpt{Lat: p.Data.ProductGpsLatidudeAt(key),
+			Lon:       p.Data.ProductGpsLongitudeAt(key),
+			Ele:       p.Data.AltitudeAt(key) / 1000,
+			Timestamp: startTime.Format(time.RFC3339)}
+
+		trkSeg.Waypoints = append(trkSeg.Waypoints, trkpt)
+
+	}
+	trk.Segments = append(trk.Segments, trkSeg)
+	gpxObject.Tracks = append(gpxObject.Tracks, trk)
+
+	bytes, err := xml.Marshal(gpxObject)
+	if err != nil {
+		fmt.Println(err.Error())
+		return bytes
+	}
+	return bytes
 }

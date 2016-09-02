@@ -135,28 +135,34 @@ func GetFile(w http.ResponseWriter, r *http.Request) {
 	log.Println("flyDate:" + flyDate)
 	isKmz := r.URL.Query().Get("kmz")
 	isCsv := r.URL.Query().Get("csv")
+	isGpx := r.URL.Query().Get("gpx")
 	isOrginal := r.URL.Query().Get("original")
 
 	if serialNumber != "" && flyDate != "" {
 		if isKmz == "true" {
 			r := p.GetKmzFile(serialNumber, flyDate)
-
 			FileAsResponse(w, r, fsmanager.GOOGLEEARTH_FILENAME)
 		} else {
-			if isCsv == "true" {
-				r := p.GetCsvFile(serialNumber, flyDate)
+			if isGpx == "true" {
+				p.LoadPUD(serialNumber, flyDate)
+				r := p.GetGPXData(serialNumber, flyDate)
 
-				FileAsResponse(w, r, fsmanager.CSV_FILE_NAME)
+				FileAsResponse(w, r, fsmanager.GPX_FILENAME)
 			} else {
-				if isOrginal == "true" {
-					r := p.GetOriginalFile(serialNumber, flyDate)
-
-					FileAsResponse(w, r, fsmanager.JSON_FILENAME)
+				if isCsv == "true" {
+					r := p.GetCsvFile(serialNumber, flyDate)
+					FileAsResponse(w, r, fsmanager.CSV_FILE_NAME)
 				} else {
-					msg := "500 Internal Server Error: "
-					http.Error(w, msg, http.StatusInternalServerError)
-					fmt.Println("Cannot get file content")
-					return
+					if isOrginal == "true" {
+						r := p.GetOriginalFile(serialNumber, flyDate)
+
+						FileAsResponse(w, r, fsmanager.JSON_FILENAME)
+					} else {
+						msg := "500 Internal Server Error: "
+						http.Error(w, msg, http.StatusInternalServerError)
+						fmt.Println("Cannot get file content")
+						return
+					}
 				}
 			}
 		}

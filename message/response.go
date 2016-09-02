@@ -25,6 +25,7 @@ type JsonDataListResponse struct {
 	FlyDate      string `json:"flyDate,omitempty"`
 	CsvFile      string `json:"csvFile"`
 	KmzFile      string `json:"kmzFile"`
+	GpxFile      string `json:"gpxFile"`
 	OriginalFile string `json:"originalFile"`
 	FlyDuration  string `json:"flyDuration"`
 }
