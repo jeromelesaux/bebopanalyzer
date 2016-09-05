@@ -319,8 +319,9 @@ func (p *Project) GetMapsData(serialNumber string, flyDate string) []message.Poi
 }
 
 func (p *Project) GetGPXData(serialNumber string, flyDate string) []byte {
-	gpxObject := &gpx.Gpx{}
-	person := &gpx.Person{Name: p.Data.ControllerModel + " " + p.Data.ControllerApplication}
+	name := "Fly " + p.Data.Date + " for the drone " + p.Data.ProductName + " Serial number " + p.Data.SerialNumber + " Version " + p.Data.Version + " Hardware version " + p.Data.HardwareVersion + " Software version " + p.Data.SoftwareVersion + " UUID " + p.Data.Uuid + " Number of crashs " + strconv.Itoa(p.Data.Crash) + " Controller application " + p.Data.ControllerApplication + " Controller model " + p.Data.ControllerModel + " Fly duration " + strconv.Itoa(p.Data.TotalRunTime/60000) + " minutes"
+	gpxObject := gpx.NewGpx()
+	person := &gpx.Person{Name: name}
 	gpxObject.Metadata = &gpx.Metadata{}
 	gpxObject.Metadata.Author = person
 	gpxObject.Metadata.Timestamp = p.Data.Date
@@ -328,22 +329,24 @@ func (p *Project) GetGPXData(serialNumber string, flyDate string) []byte {
 	trk.Name = p.Data.Date
 	trkSeg := gpx.Trkseg{}
 
-	startTime, err := fmtdate.Parse("YYYY-MM-DDThhmmss+0000", p.Data.Date)
+	startTime, err := fmtdate.Parse("YYYY-MM-DDThhmmss+ssss", p.Data.Date)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 
 	for key, _ := range p.Data.DetailsData {
-		secondes := p.Data.TimeAt(key) / 60000
-		when := time.Duration(secondes) * time.Second
-		startTime = startTime.Add(when)
+		if p.Data.ProductGpsLatidudeAt(key) != 500. && p.Data.ProductGpsLongitudeAt(key) != 500. {
+			secondes := p.Data.TimeAt(key) / 60000
+			when := time.Duration(secondes) * time.Second
+			startTime = startTime.Add(when)
 
-		trkpt := gpx.Wpt{Lat: p.Data.ProductGpsLatidudeAt(key),
-			Lon:       p.Data.ProductGpsLongitudeAt(key),
-			Ele:       p.Data.AltitudeAt(key) / 1000,
-			Timestamp: startTime.Format(time.RFC3339)}
+			trkpt := gpx.Wpt{Lat: p.Data.ProductGpsLatidudeAt(key),
+				Lon:       p.Data.ProductGpsLongitudeAt(key),
+				Ele:       p.Data.AltitudeAt(key) / 1000,
+				Timestamp: startTime.Format(time.RFC3339)}
 
-		trkSeg.Waypoints = append(trkSeg.Waypoints, trkpt)
+			trkSeg.Waypoints = append(trkSeg.Waypoints, trkpt)
+		}
 
 	}
 	trk.Segments = append(trk.Segments, trkSeg)
