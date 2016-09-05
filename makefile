@@ -16,7 +16,7 @@ EXEC=bebopanalyzer
 
 VERSION=1.7.0
 BUILD_TIME=`date +%FT%T%z`
-PACKAGES := fmt path/filepath
+PACKAGES := fmt path/filepath github.com/metakeule/fmtdate github.com/ptrv/go-gpx
 
 
 LIBS= 
