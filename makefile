@@ -7,14 +7,14 @@ SOURCEDIR=.
 SOURCES := $(shell find $(SOURCEDIR) -name '*.go')
 #GOPATH=$(SOURCEDIR)/
 GOOS=linux
-GOARCH=amd64
-#GOARCH=arm
+#GOARCH=amd64
+GOARCH=arm
 GOARM=7
 
 
 EXEC=bebopanalyzer
 
-VERSION=1.7.0
+VERSION=1.7.1
 BUILD_TIME=`date +%FT%T%z`
 PACKAGES := fmt path/filepath github.com/metakeule/fmtdate github.com/ptrv/go-gpx
 

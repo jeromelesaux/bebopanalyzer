@@ -324,7 +324,7 @@ func (p *Project) GetGPXData(serialNumber string, flyDate string) []byte {
 	person := &gpx.Person{Name: name}
 	gpxObject.Metadata = &gpx.Metadata{}
 	gpxObject.Metadata.Author = person
-	gpxObject.Metadata.Timestamp = p.Data.Date
+
 	trk := gpx.Trk{}
 	trk.Name = p.Data.Date
 	trkSeg := gpx.Trkseg{}
