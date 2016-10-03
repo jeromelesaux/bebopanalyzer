@@ -21,9 +21,10 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
     <!-- Map depedencies -->
-    <link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css"/>
-    <script type='text/javascript' src='http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js?2'></script>
-
+    <!--<link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css"/>-->
+    <!--<script type='text/javascript' src='http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js?2'></script>-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
 </head>
 <body>
 <div class="container">
@@ -176,7 +177,7 @@
                                 <h4 class="modal-title" id="myModalLabel0">Map</h4>
                             </div>
                             <div class="modal-body">
-                                <div id="flyMap" style="width: 600px; height: 600px; border: 1px solid #AAA;"></div>
+                                <div id="flyMap" style="width: 700px; height: 700px; border: 1px solid #AAA;"></div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -193,19 +194,17 @@
                 <script type="application/javascript">
                     var map = L.map('flyMap', {
                         center: [0.0, 0.0],
-                        minZoom: 1,
-                        zoom: 1
+                        minZoom: 3,
+                        zoom: 3
                     });
-                    mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
-                    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; ' + mapLink + ' Contributors',
-                        maxZoom: 20,
-                    }).addTo(map);
-                    var polyline;
-
 
                     function generateMap(serialNumber, flyDate) {
 
+                        mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '&copy; ' + mapLink + ' Contributors',
+                            maxZoom: 19
+                        }).addTo(map);
 
                         json = $.ajax({
                             dataType: "json",
@@ -220,10 +219,14 @@
                             latlngs[i] = p;
                         }
                         // console.log(latlngs);
-                        polyline = L.polyline(latlngs, {color: 'red', lineJoin: 'round'}).addTo(map);
+                        var polyline = L.polyline(latlngs, {color: 'red', lineJoin: 'round'}).addTo(map);
                         // console.log(polyline);
+
+
+
                         map.fitBounds(polyline.getBounds());
-                        $("#myModal0").modal('show');
+
+                        $('#myModal0').modal('show');
                     }
                 </script>
 

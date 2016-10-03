@@ -10,7 +10,6 @@ Open your web browser and type the url http://localhost:8099 and enjoy.
 Some features, you can get additional files of your files :
 Flies 
 ![alt main screen](./Screenshots/flies_display.png)
-<img src="./Screenshots/flies_display.png"></img>
  - kmz file you can display each flies into Google Maps  or Google Earth https://www.google.com/earth/
  - csv file, gathering all informations of your flies (coordinates, battery state, etc ...)
  - gpx file, fly coordinates compatible with some applications like virbe application from Garmin http://www8.garmin.com/support/download_details.jsp?id=6591
