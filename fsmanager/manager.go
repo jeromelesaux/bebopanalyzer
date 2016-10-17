@@ -305,11 +305,11 @@ func (p *Project) GetMapsData(serialNumber string, flyDate string) []message.Poi
 		if gpsAvailable {
 			latitude := p.Data.ProductGpsLatidudeAt(i)
 			longitude := p.Data.ProductGpsLongitudeAt(i)
-			time := p.Data.TimeAt(i) / 60000
-			name := strconv.FormatFloat(time, 'f', 8, 64)
+			//time := p.Data.TimeAt(i) / 60000
+			//name := strconv.FormatFloat(time, 'f', 8, 64)
 			//log.Println("latitude:" + strconv.FormatFloat(latitude, 'f', 10, 64) + "&longitude:" + strconv.FormatFloat(longitude, 'f', 10, 64))
 			if latitude != 500. && longitude != 500. {
-				point := message.Point{Name: name, Description: "", Latitude: latitude, Longitude: longitude}
+				point := message.Point{Description: "", Latitude: latitude, Longitude: longitude}
 				m = append(m, point)
 			}
 		}

@@ -192,41 +192,30 @@
 
 
                 <script type="application/javascript">
-                    var map = L.map('flyMap', {
-                        center: [0.0, 0.0],
-                        minZoom: 3,
-                        zoom: 3
-                    });
+                    map = new L.Map('flyMap', { maxZoom:21 });
 
                     function generateMap(serialNumber, flyDate) {
+			var maplink =  new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom: 21, maxNativeZoom: 19, minZoom: 1, detectRetina: true});
 
-                        mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            attribution: '&copy; ' + mapLink + ' Contributors',
-                            maxZoom: 19
-                        }).addTo(map);
 
-                        json = $.ajax({
+                        $.ajax({
                             dataType: "json",
                             url: './displayFly?serialNumber=' + serialNumber + '&flyDate=' + flyDate.replace('+', '%2B'),
                             async: false
-                        }).responseJSON;
+                        }).done(function (data){
+				var d = [];
+                        	for (var i = 0; i < data.length; ++i) {
+                	            var p = L.latLng(data[i].lat, data[i].lng);
+        	                    d[i] = p;
+	                        }
+				map.setView(new L.LatLng(data[0].lat,data[0].lng),19);
+				map.addLayer(maplink);
+                        	var polyline = new L.Polyline(d, {color: 'red', lineJoin: 'round'}).addTo(map);
+                        	$('#myModal0').modal('show');
+
+			});
 
 
-                        var latlngs = [];
-                        for (var i = 0; i < json.length; ++i) {
-                            var p = L.latLng(json[i].lat, json[i].lng);
-                            latlngs[i] = p;
-                        }
-                        // console.log(latlngs);
-                        var polyline = L.polyline(latlngs, {color: 'red', lineJoin: 'round'}).addTo(map);
-                        // console.log(polyline);
-
-
-
-                        map.fitBounds(polyline.getBounds());
-
-                        $('#myModal0').modal('show');
                     }
                 </script>
 
