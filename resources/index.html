@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Wellcome</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
@@ -21,10 +23,22 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
     <!-- Map depedencies -->
-    <!--<link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css"/>-->
-    <!--<script type='text/javascript' src='http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js?2'></script>-->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css"/>
+    <script type='text/javascript' src='http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js?2'></script>
+    <!--<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />-->
+    <!--<script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>-->
+
+    <script type="application/javascript">
+        $(window).load(function () {
+            $('#myModal0').on('shown.bs.modal', function () {
+                setTimeout(function () {
+                    map.invalidateSize();
+                }, 1);
+            })
+        })
+
+    </script>
+
 </head>
 <body>
 <div class="container">
@@ -150,34 +164,34 @@
                     </tr>
                     </thead>
                 </table>
-
-
                 <style type="text/css">
-
+                    #flyMap {
+                        min-height: 250px;
+                    }
                     .modal-dialog {
-                        width: 100%; /* New width for default modal */
-                        height: 100%;
+                        width: 70%; /* New width for default modal */
+                        height: 70%;
                         margin: 0;
                         padding: 0;
                     }
                     .modal-content {
-                        width: 100%;
-                        min-height: 100%;
+                        width: 70%;
+                        min-height: 70%;
                         border-radius: 0;
                     }
-
                 </style>
 
+
                 <!-- Modal -->
-                <div class="modal fade" id="myModal0" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal fade" id="myModal0">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
                                 <h4 class="modal-title" id="myModalLabel0">Map</h4>
                             </div>
                             <div class="modal-body">
-                                <div id="flyMap" style="width: 700px; height: 700px; border: 1px solid #AAA;"></div>
+                                <div id="flyMap" style="width:550px; height:400px;"></div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -187,36 +201,53 @@
                 </div>
 
 
-
-
-
-
                 <script type="application/javascript">
-                    map = new L.Map('flyMap', { maxZoom:21 });
+                    var map = L.map('flyMap', {
+                        center: [48.0, 2.0],
+                        minZoom: 1,
+                        zoom: 1
+                    });
+
+                    var polyline;
+
 
                     function generateMap(serialNumber, flyDate) {
-			var maplink =  new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom: 21, maxNativeZoom: 19, minZoom: 1, detectRetina: true});
+
+                        if (polyline != null) {
+                            map.removeLayer(polyline);
+                        }
+                        mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+                        L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '&copy; ' + mapLink + ' Contributors',
+                            maxZoom: 18
+                        }).addTo(map);
 
 
                         $.ajax({
                             dataType: "json",
                             url: './displayFly?serialNumber=' + serialNumber + '&flyDate=' + flyDate.replace('+', '%2B'),
-                            async: false
-                        }).done(function (data){
-				var d = [];
-                        	for (var i = 0; i < data.length; ++i) {
-                	            var p = L.latLng(data[i].lat, data[i].lng);
-        	                    d[i] = p;
-	                        }
-				map.setView(new L.LatLng(data[0].lat,data[0].lng),19);
-				map.addLayer(maplink);
-                        	var polyline = new L.Polyline(d, {color: 'red', lineJoin: 'round'}).addTo(map);
-                        	$('#myModal0').modal('show');
+                            async: true
+                        }).done(function (data) {
+                                    var d = [];
+                                    if (data.length == 0) {
+                                        alert("no data for this fly " + flyDate);
+                                        return;
+                                    }
+                                    for (var i = 0; i < data.length; ++i) {
+                                        var p = new L.LatLng(data[i].lat, data[i].lng);
+                                        d[i] = p;
+                                    }
+                                    polyline = new L.Polyline(d, {color: 'red', lineJoin: 'round'});
+                                    map.addLayer(polyline);
+                                    map.fitBounds(polyline.getBounds());
 
-			});
+                                    $('#myModal0').modal('show');
+                                }
+                        );
 
 
                     }
+
                 </script>
 
                 <!-- Modal -->
@@ -228,7 +259,7 @@
                                 <h4 class="modal-title" id="myModalLabel">Stats</h4>
                             </div>
                             <div class="modal-body">
-                                <div id="flyChart" style="border: 1px solid #AAA;"></div>
+                                <div id="flyChart" style="width:400px; border: 1px solid #AAA;"></div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -238,11 +269,9 @@
                 </div>
 
 
-
-
                 <script type="text/javascript">
                     google.charts.load('current', {'packages': ['corechart']});
-                    var tag= $('<div id="flyChart"></div>');
+                    var tag = $('<div id="flyChart"></div>');
                     function generateGraphic(serialNumber, flyDate) {
 
                         google.charts.setOnLoadCallback(drawChart(serialNumber, flyDate));
@@ -259,8 +288,8 @@
                             data.addColumn('number', 'Altitude in M');
                             data.addColumn('number', 'Battery level in %');
                             data.addRows(json);
-                            var width =  1.3 * window.innerHeight;
-                            var height = .6 * window.innerWidth;
+                            var width = 550;
+                            var height = 400;
                             var options = {
                                 chart: {
                                     title: 'fly of the ' + flyDate,
@@ -347,6 +376,13 @@
 
 
 
+
+
+
+
+
+
+
     </script>
     <!-- The template to display files available for download -->
     <script id="template-download" type="text/x-tmpl">
@@ -384,6 +420,13 @@
         </td>
     </tr>
 {% } %}
+
+
+
+
+
+
+
 
 
 
