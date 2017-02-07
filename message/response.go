@@ -23,6 +23,7 @@ type JsonSerialNumberRow struct {
 type JsonDataListResponse struct {
 	SerialNumber string `json:"serialNumber,omitempty"`
 	FlyDate      string `json:"flyDate,omitempty"`
+	Place        string `json:"place,omitempty"`
 	CsvFile      string `json:"csvFile"`
 	KmzFile      string `json:"kmzFile"`
 	GpxFile      string `json:"gpxFile"`

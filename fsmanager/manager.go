@@ -14,6 +14,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -227,16 +228,44 @@ func (p *Project) GetTree() []message.JsonDataListResponse {
 			t := message.JsonDataListResponse{}
 			t.SerialNumber = f.Name()
 			t.FlyDate = subF.Name()
+
 			t.CsvFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&csv=true"
 			t.KmzFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&kmz=true"
 			t.GpxFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&gpx=true"
 			t.OriginalFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&original=true"
 			p := model.Load(root + string(filepath.Separator) + f.Name() + string(filepath.Separator) + t.FlyDate + string(filepath.Separator) + "Raw" + string(filepath.Separator) + JSON_FILENAME)
 			t.FlyDuration = fmt.Sprintf("%.2f", (float32(p.TotalRunTime) / 60000))
+			index := len(p.DetailsData) - 2
+			latitude := p.ProductGpsLatidudeAt(index)
+			longitude := p.ProductGpsLongitudeAt(index)
+			//fmt.Printf("%d lng %f lat %f %s\n",index,longitude,latitude,p.Date)
+			t.Place = getPlace(longitude, latitude)
 			r = append(r, t)
 		}
 	}
 	return r
+}
+
+func getPlace(longitude, latitude float64) string {
+	if longitude == 500. || latitude == 500. {
+		return ""
+	}
+	var target map[string]interface{}
+	url := fmt.Sprintf("https://maps.googleapis.com/maps/api/geocode/json?latlng=%f,%f&key=AIzaSyBKvMHHvbZQkvEHD7lkB2ULsSoqY0LOaQI", latitude, longitude)
+	response, err := http.Get(url)
+	if err != nil {
+		fmt.Println("error while quering google geocoder with error : " + err.Error() + " with longitude " + strconv.FormatFloat(longitude, 'f', 6, 64) + " and latitude " + strconv.FormatFloat(latitude, 'f', 6, 64))
+	}
+	defer response.Body.Close()
+	json.NewDecoder(response.Body).Decode(&target)
+	if target["status"].(string) == "OK" {
+		address := target["results"].([]interface{})[0].(map[string]interface{})["formatted_address"]
+		return address.(string)
+	} else {
+		fmt.Println(target)
+		fmt.Println("error while quering google geocoder with longitude " + strconv.FormatFloat(longitude, 'f', 6, 64) + " and latitude " + strconv.FormatFloat(latitude, 'f', 6, 64) + " http code : " + response.Status)
+		return ""
+	}
 }
 
 func (p *Project) GetKmzFile(serialNumber string, flyDate string) []byte {

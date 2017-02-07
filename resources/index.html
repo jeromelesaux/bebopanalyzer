@@ -23,8 +23,8 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
     <!-- Map depedencies -->
-    <link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css"/>
-    <script type='text/javascript' src='http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js?2'></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css"/>
+    <script type='text/javascript' src='https://unpkg.com/leaflet@1.0.1/dist/leaflet.js'></script>
     <!--<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />-->
     <!--<script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>-->
 
@@ -143,6 +143,38 @@
                         <button id="button" class="btn btn-default">refresh</button>
                     </form>
                 </div>
+                <script type="application/javascript">
+                    function searchKeyword() {
+                        // Declare variables
+                        var input, filter, table, tr, td, i;
+                        input = document.getElementById("keySearch");
+                        filter = input.value.toUpperCase();
+                        table = document.getElementById("table");
+                        tr = table.getElementsByTagName("tr");
+
+                        // Loop through all table rows, and hide those who don't match the search query
+                        for (i = 0; i < tr.length; i++) {
+                            for (j = 0; j < tr[i].getElementsByTagName("td").length; j++) {
+                                td = tr[i].getElementsByTagName("td")[j];
+                                if (td) {
+                                    tdValue = td.innerHTML.toUpperCase();
+                                    // console.log(tdValue + " input:" + filter + " " + tdValue.indexOf(filter));
+
+                                    if (tdValue.indexOf(filter) == -1) {
+                                        tr[i].style.display = "none";
+                                    } else {
+                                        tr[i].style.display = "";
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                </script>
+                <div class="form-group">
+                    <span class="glyphicon glyphicon-search"></span>
+                    <input class="input-control" type="text" id="keySearch" onkeyup="searchKeyword()" placeholder="Search for text..">
+                </div>
                 <table data-toggle="table" class="display" data-url="./list" id="table" data-toolbar="#toolbar"
                        data-sort-name="flyDuration" data-sort-order="desc">
                     <tr>
@@ -152,6 +184,7 @@
                     <tr>
                         <th data-field="serialNumber" data-sortable="true">Bebop Identifier</th>
                         <th data-field="flyDate" data-sortable="true">Fly date</th>
+                        <th data-field="place" data-sortable="true">Fly's Place</th>
                         <th data-field="kmzFile" data-formatter="linkFormatter">KMZ file</th>
                         <th data-field="csvFile" data-formatter="linkFormatter">CSV file</th>
                         <th data-field="gpxFile" data-formatter="linkFormatter">GPX file</th>
@@ -168,12 +201,14 @@
                     #flyMap {
                         min-height: 250px;
                     }
+
                     .modal-dialog {
                         width: 100%; /* New width for default modal */
                         height: 100%;
                         margin: 0;
                         padding: 0;
                     }
+
                     .modal-content {
                         width: 100%;
                         min-height: 100%;
@@ -228,21 +263,21 @@
                             url: './displayFly?serialNumber=' + serialNumber + '&flyDate=' + flyDate.replace('+', '%2B'),
                             async: true
                         }).done(function (data) {
-                                    var d = [];
-                                    if (data.length == 0) {
-                                        alert("no data for this fly " + flyDate);
-                                        return;
-                                    }
-                                    for (var i = 0; i < data.length; ++i) {
-                                        var p = new L.LatLng(data[i].lat, data[i].lng);
-                                        d[i] = p;
-                                    }
-                                    polyline = new L.Polyline(d, {color: 'red', lineJoin: 'round'});
-                                    map.addLayer(polyline);
-                                    map.fitBounds(polyline.getBounds());
-
-                                    $('#myModal0').modal('show');
+                                var d = [];
+                                if (data.length == 0) {
+                                    alert("no data for this fly " + flyDate);
+                                    return;
                                 }
+                                for (var i = 0; i < data.length; ++i) {
+                                    var p = new L.LatLng(data[i].lat, data[i].lng);
+                                    d[i] = p;
+                                }
+                                polyline = new L.Polyline(d, {color: 'red', lineJoin: 'round'});
+                                map.addLayer(polyline);
+                                map.fitBounds(polyline.getBounds());
+
+                                $('#myModal0').modal('show');
+                            }
                         );
 
 
@@ -383,6 +418,9 @@
 
 
 
+
+
+
     </script>
     <!-- The template to display files available for download -->
     <script id="template-download" type="text/x-tmpl">
@@ -420,6 +458,9 @@
         </td>
     </tr>
 {% } %}
+
+
+
 
 
 
