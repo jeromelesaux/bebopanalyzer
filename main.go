@@ -1,11 +1,13 @@
 package main
 
+//go:generate swagger generate spec -o swagger.json
 import (
 	"bebopanalyzer/configuration"
 	"bebopanalyzer/fsmanager"
 	"bebopanalyzer/model"
 	"bebopanalyzer/routes"
 	"fmt"
+	"github.com/gorilla/mux"
 	"net/http"
 	"os"
 )
@@ -32,13 +34,14 @@ func main() {
 		fmt.Println("Starting server web at port " + Conf.HttpPort)
 		// gestion des routes http
 		routes.Conf = Conf
-		http.HandleFunc("/import/", routes.AnalyseFly)
-		http.HandleFunc("/get", routes.GetFile)
-		http.HandleFunc("/list", routes.GetListTree)
-		http.HandleFunc("/chart", routes.GetChart)
-		http.HandleFunc("/displayFly", routes.GetMaps)
-		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("./resources"))))
-		http.ListenAndServe(Conf.HttpPort, nil)
+		router := mux.NewRouter().StrictSlash(true)
+		router.HandleFunc("/import/", routes.AnalyseFly)
+		router.HandleFunc("/get/{serialNumber}/{flyDate}/{type}", routes.GetFile)
+		router.HandleFunc("/list", routes.GetListTree)
+		router.HandleFunc("/chart/{serialNumber}/{flyDate}", routes.GetChart)
+		router.HandleFunc("/displayFly/{serialNumber}/{flyDate}", routes.GetMaps)
+		router.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("./resources"))))
+		fmt.Println(http.ListenAndServe(Conf.HttpPort, router))
 	}
 
 }

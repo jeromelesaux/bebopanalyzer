@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
 	"io"
 	"io/ioutil"
 	"log"
@@ -32,6 +33,24 @@ func importFlyWG(pud *model.PUD, fis *FileInfos, fileInfo *FileInfo, wg *sync.Wa
 
 }
 
+// swagger:route POST /import none
+//
+// Import JSON fly metadata
+//
+//	Consumes:
+// 	- multipart/form-data
+//
+//	Produces :
+//	- application/json
+//
+//	Schemes: http,https
+//
+// 	Security:
+//
+//	Responses :
+//	default: FileInfo
+//	200: OK
+//	500: KO
 func AnalyseFly(w http.ResponseWriter, r *http.Request) {
 	var wg sync.WaitGroup
 	log.Print("Calling AnalyseFly.")
@@ -116,6 +135,24 @@ func getReader(p *multipart.Part) (fi *FileInfo, pud *model.PUD) {
 	return
 }
 
+// swagger:route GET /list none
+//
+// Get file for type type
+//
+//	Consumes:
+// 	- application/json
+//
+//	Produces :
+//	- application/json
+//
+//	Schemes: http,https
+//
+// 	Security:
+//
+//	Responses :
+//	default: bytes
+//	200: OK
+//	500: KO
 func GetListTree(w http.ResponseWriter, r *http.Request) {
 	log.Println("GetDirectories called.")
 	p := fsmanager.Project{}
@@ -124,36 +161,57 @@ func GetListTree(w http.ResponseWriter, r *http.Request) {
 	JsonAsResponse(w, t)
 }
 
+// swagger:route GET /get/{serialNumber}/{flyDate}/{type} serialNumber flyDate type
+//
+// Get file for type type
+//
+//	Consumes:
+// 	- application/json
+//
+//	Produces :
+//	- application/json
+//
+//	Schemes: http,https
+//
+// 	Security:
+//
+//	Responses :
+//	default: bytes
+//	200: OK
+//	500: KO
 func GetFile(w http.ResponseWriter, r *http.Request) {
 	log.Println("GetFlies called.")
 	p := fsmanager.Project{}
 	p.BaseDir = Conf.BasepathStorage
 
-	serialNumber := r.URL.Query().Get("serialNumber")
+	vars := mux.Vars(r)
+	serialNumber := vars["serialNumber"]
+	//serialNumber := r.URL.Query().Get("serialNumber")
 	log.Println("SerialNumber:" + serialNumber)
-	flyDate := r.URL.Query().Get("flyDate")
+	//flyDate := r.URL.Query().Get("flyDate")
+	flyDate := vars["flyDate"]
 	log.Println("flyDate:" + flyDate)
-	isKmz := r.URL.Query().Get("kmz")
-	isCsv := r.URL.Query().Get("csv")
-	isGpx := r.URL.Query().Get("gpx")
-	isOrginal := r.URL.Query().Get("original")
-
+	//isKmz := r.URL.Query().Get("kmz")
+	//isCsv := r.URL.Query().Get("csv")
+	//isGpx := r.URL.Query().Get("gpx")
+	//isOrginal := r.URL.Query().Get("original")
+	typeFile := vars["type"]
 	if serialNumber != "" && flyDate != "" {
-		if isKmz == "true" {
+		if typeFile == "kmz" {
 			r := p.GetKmzFile(serialNumber, flyDate)
 			FileAsResponse(w, r, fsmanager.GOOGLEEARTH_FILENAME)
 		} else {
-			if isGpx == "true" {
+			if typeFile == "gpx" {
 				p.LoadPUD(serialNumber, flyDate)
 				r := p.GetGPXData(serialNumber, flyDate)
 
 				FileAsResponse(w, r, fsmanager.GPX_FILENAME)
 			} else {
-				if isCsv == "true" {
+				if typeFile == "csv" {
 					r := p.GetCsvFile(serialNumber, flyDate)
 					FileAsResponse(w, r, fsmanager.CSV_FILE_NAME)
 				} else {
-					if isOrginal == "true" {
+					if typeFile == "original" {
 						r := p.GetOriginalFile(serialNumber, flyDate)
 
 						FileAsResponse(w, r, fsmanager.JSON_FILENAME)
@@ -171,27 +229,69 @@ func GetFile(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// swagger:route GET /chart/{serialNumber}/{flyDate} serialNumber flyDate
+//
+// Get file for type type
+//
+//	Consumes:
+// 	- application/json
+//
+//	Produces :
+//	- application/json
+//
+//	Schemes: http,https
+//
+// 	Security:
+//
+//	Responses :
+//	default: [][]interface{}
+//	200: OK
+//	500: internal error
+// 	404: not found
 func GetChart(w http.ResponseWriter, r *http.Request) {
 	log.Println("GetChart calling.")
 	p := fsmanager.Project{}
 	p.BaseDir = Conf.BasepathStorage
-
-	serialNumber := r.URL.Query().Get("serialNumber")
+	vars := mux.Vars(r)
+	serialNumber := vars["serialNumber"]
+	//serialNumber := r.URL.Query().Get("serialNumber")
 	log.Println("SerialNumber:" + serialNumber)
-	flyDate := r.URL.Query().Get("flyDate")
+	//flyDate := r.URL.Query().Get("flyDate")
+	flyDate := vars["flyDate"]
 	p.LoadPUD(serialNumber, flyDate)
 	data := p.GetChartData(serialNumber, flyDate)
 	JsonAsResponse(w, data)
 }
 
+// swagger:route GET /displayFly/{serialNumber}/{flyDate}  serialNumber flyDate
+//
+// Get file for type type
+//
+//	Consumes:
+// 	- application/json
+//
+//	Produces :
+//	- application/json
+//
+//	Schemes: http
+//
+// 	Security:
+//
+//	Responses :
+//	default: Point
+//	200: OK
+//	500: KO
+//	404: not found
 func GetMaps(w http.ResponseWriter, r *http.Request) {
 	log.Println("GetMaps calling.")
 	p := fsmanager.Project{}
 	p.BaseDir = Conf.BasepathStorage
-
-	serialNumber := r.URL.Query().Get("serialNumber")
+	vars := mux.Vars(r)
+	serialNumber := vars["serialNumber"]
+	//serialNumber := r.URL.Query().Get("serialNumber")
 	log.Println("SerialNumber:" + serialNumber)
-	flyDate := r.URL.Query().Get("flyDate")
+	//flyDate := r.URL.Query().Get("flyDate")
+	flyDate := vars["flyDate"]
 	log.Println("flyDate:" + flyDate)
 	p.LoadPUD(serialNumber, flyDate)
 	data := p.GetMapsData(serialNumber, flyDate)

@@ -229,10 +229,10 @@ func (p *Project) GetTree() []message.JsonDataListResponse {
 			t.SerialNumber = f.Name()
 			t.FlyDate = subF.Name()
 
-			t.CsvFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&csv=true"
-			t.KmzFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&kmz=true"
-			t.GpxFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&gpx=true"
-			t.OriginalFile = "./get?serialNumber=" + t.SerialNumber + "&flyDate=" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "&original=true"
+			t.CsvFile = "./get/" + t.SerialNumber + "/" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "/csv"
+			t.KmzFile = "./get/" + t.SerialNumber + "/" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "/kmz"
+			t.GpxFile = "./get/" + t.SerialNumber + "/" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "/gpx"
+			t.OriginalFile = "./get/" + t.SerialNumber + "/" + strings.Replace(t.FlyDate, "+", "%2B", 1) + "/original"
 			p := model.Load(root + string(filepath.Separator) + f.Name() + string(filepath.Separator) + t.FlyDate + string(filepath.Separator) + "Raw" + string(filepath.Separator) + JSON_FILENAME)
 			t.FlyDuration = fmt.Sprintf("%.2f", (float32(p.TotalRunTime) / 60000))
 			index := len(p.DetailsData) - 2

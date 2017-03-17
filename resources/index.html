@@ -260,7 +260,7 @@
 
                         $.ajax({
                             dataType: "json",
-                            url: './displayFly?serialNumber=' + serialNumber + '&flyDate=' + flyDate.replace('+', '%2B'),
+                            url: './displayFly/' + serialNumber + '/' + flyDate.replace('+', '%2B'),
                             async: true
                         }).done(function (data) {
                                 var d = [];
@@ -313,7 +313,7 @@
                         function drawChart(serialNumber, flyDate) {
                             json = $.ajax({
                                 dataType: "json",
-                                url: './chart?serialNumber=' + serialNumber + '&flyDate=' + flyDate.replace('+', '%2B'),
+                                url: './chart/' + serialNumber + '/' + flyDate.replace('+', '%2B'),
                                 async: false
                             }).responseJSON;
                             //console.log(json)

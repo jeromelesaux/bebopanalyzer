@@ -14,9 +14,9 @@ GOARM=7
 
 EXEC=bebopanalyzer
 
-VERSION=1.8
+VERSION=1.9
 BUILD_TIME=`date +%FT%T%z`
-PACKAGES := fmt path/filepath github.com/metakeule/fmtdate github.com/ptrv/go-gpx
+PACKAGES := fmt path/filepath github.com/metakeule/fmtdate github.com/ptrv/go-gpx github.com/gorilla/mux github.com/gorilla/mux
 
 
 LIBS= 
@@ -59,3 +59,8 @@ package:  ${EXEC}
 audit:   ${EXEC}
 		@go tool vet -all -shadow ./
 		@echo "    Audit effectue"
+
+swagger:
+	@echo "Generate swagger json file specs"
+	@GOPATH=$(PWD)/../.. go run ${GOPATH}/src/github.com/go-swagger/go-swagger/cmd/swagger/swagger.go generate spec -m -b ./routes > resources/swagger.json
+	@echo "Specs generate at resources/swagger.json"

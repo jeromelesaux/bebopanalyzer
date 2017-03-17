@@ -20,6 +20,7 @@ type JsonSerialNumberRow struct {
 	SerialNumber string `json:"serialNumber,omitempty"`
 }
 
+// swagger:response
 type JsonDataListResponse struct {
 	SerialNumber string `json:"serialNumber,omitempty"`
 	FlyDate      string `json:"flyDate,omitempty"`
