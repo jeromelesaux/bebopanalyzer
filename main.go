@@ -14,6 +14,8 @@ import (
 
 var Conf configuration.AppConfiguration
 
+
+// https://goswagger.io/generate/spec.html
 func main() {
 
 	if len(os.Args) == 1 {
