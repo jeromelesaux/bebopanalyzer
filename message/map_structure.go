@@ -1,6 +1,7 @@
 package message
 
-// swagger:response
+// point position in latitude and longitude projection wgs84
+// swagger:response point
 type Point struct {
 	// description of the Point
 	Description string `json:"description,omitempty"`

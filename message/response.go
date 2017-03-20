@@ -20,16 +20,26 @@ type JsonSerialNumberRow struct {
 	SerialNumber string `json:"serialNumber,omitempty"`
 }
 
-// swagger:response
+// contains all informations about the files (types csv, gpx, kmz, json)
+// and identifications informations
+// swagger:response  jsonDataListResponse
 type JsonDataListResponse struct {
+	// serialnumber of the drone
 	SerialNumber string `json:"serialNumber,omitempty"`
-	FlyDate      string `json:"flyDate,omitempty"`
-	Place        string `json:"place,omitempty"`
-	CsvFile      string `json:"csvFile"`
-	KmzFile      string `json:"kmzFile"`
-	GpxFile      string `json:"gpxFile"`
+	// fly date
+	FlyDate string `json:"flyDate,omitempty"`
+	// localisation of the fly
+	Place string `json:"place,omitempty"`
+	// path to get the csv file containing the fly data
+	CsvFile string `json:"csvFile"`
+	// path to get the kmz file of the fly
+	KmzFile string `json:"kmzFile"`
+	// path to get the gpx file of the fly
+	GpxFile string `json:"gpxFile"`
+	// path to get the original json file of the fly
 	OriginalFile string `json:"originalFile"`
-	FlyDuration  string `json:"flyDuration"`
+	// fly duration
+	FlyDuration string `json:"flyDuration"`
 }
 
 type GoogleChartColumns struct {

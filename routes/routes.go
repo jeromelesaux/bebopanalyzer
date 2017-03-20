@@ -1,3 +1,26 @@
+// Package routes bebopanalyzer API
+// the purpose of this application is to parse bebop metadata fly file
+// it will provided mutliple format files to display analyze yours flies
+//
+// Terms Of Service:
+// bebop metadata flies json zipped files manager
+//
+// Title: bebopanalyzer
+// Schemes: https
+// Host: localhost
+// BasePath: /
+// Version: 1.9
+// Licence: MIT http://opensource.org/licenses/MIT
+// Contact: jeromelesaux@gmail.com
+//
+// Consumes:
+// - application/json
+// - multipart/form-data
+//
+// Produces:
+// - application/json
+//
+// swagger:meta
 package routes
 
 import (
@@ -33,7 +56,13 @@ func importFlyWG(pud *model.PUD, fis *FileInfos, fileInfo *FileInfo, wg *sync.Wa
 
 }
 
-// swagger:route POST /import none
+// swagger:parameters import
+type FileImported struct {
+	// required: true
+	File []byte
+}
+
+// AnalyseFly swagger:route POST /import  import
 //
 // Import JSON fly metadata
 //
@@ -43,14 +72,12 @@ func importFlyWG(pud *model.PUD, fis *FileInfos, fileInfo *FileInfo, wg *sync.Wa
 //	Produces :
 //	- application/json
 //
-//	Schemes: http,https
+//	Schemes: https
 //
 // 	Security:
 //
 //	Responses :
-//	default: FileInfo
-//	200: OK
-//	500: KO
+//	default: fileInfos
 func AnalyseFly(w http.ResponseWriter, r *http.Request) {
 	var wg sync.WaitGroup
 	log.Print("Calling AnalyseFly.")
@@ -135,7 +162,7 @@ func getReader(p *multipart.Part) (fi *FileInfo, pud *model.PUD) {
 	return
 }
 
-// swagger:route GET /list none
+// GetListTree swagger:route GET /list getListTree
 //
 // Get file for type type
 //
@@ -145,14 +172,12 @@ func getReader(p *multipart.Part) (fi *FileInfo, pud *model.PUD) {
 //	Produces :
 //	- application/json
 //
-//	Schemes: http,https
+//	Schemes: https
 //
 // 	Security:
 //
 //	Responses :
-//	default: bytes
-//	200: OK
-//	500: KO
+//	default: jsonDataListResponse
 func GetListTree(w http.ResponseWriter, r *http.Request) {
 	log.Println("GetDirectories called.")
 	p := fsmanager.Project{}
@@ -161,7 +186,28 @@ func GetListTree(w http.ResponseWriter, r *http.Request) {
 	JsonAsResponse(w, t)
 }
 
-// swagger:route GET /get/{serialNumber}/{flyDate}/{type} serialNumber flyDate type
+// swagger:parameters getFile
+type GetFileParameters struct {
+
+	// serial number of the drone
+	// required: true
+	SerialNumber string
+
+	// fly date of instance
+	// required: true
+	FlyDate string
+
+	// type accepted csv, kmz, gpx, original
+	// required: true
+	Type string
+}
+
+// swagger:response getFileResponse
+type GetFileResponse struct {
+	File []byte
+}
+
+// GetFile swagger:route GET /get/{serialNumber}/{flyDate}/{type} serialNumber flyDate type getFile
 //
 // Get file for type type
 //
@@ -169,16 +215,14 @@ func GetListTree(w http.ResponseWriter, r *http.Request) {
 // 	- application/json
 //
 //	Produces :
-//	- application/json
+//	- multipart/form-data
 //
-//	Schemes: http,https
+//	Schemes: https
 //
 // 	Security:
 //
 //	Responses :
-//	default: bytes
-//	200: OK
-//	500: KO
+//	default: getFileResponse
 func GetFile(w http.ResponseWriter, r *http.Request) {
 	log.Println("GetFlies called.")
 	p := fsmanager.Project{}
@@ -229,7 +273,19 @@ func GetFile(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// swagger:route GET /chart/{serialNumber}/{flyDate} serialNumber flyDate
+// swagger:parameters getChart
+type GetChartParameters struct {
+
+	// serial number of the drone
+	// required: true
+	SerialNumber string
+
+	// fly date of instance
+	// required: true
+	FlyDate string
+}
+
+// GetChart swagger:route GET /chart/{serialNumber}/{flyDate} serialNumber flyDate getChart
 //
 // Get file for type type
 //
@@ -239,15 +295,12 @@ func GetFile(w http.ResponseWriter, r *http.Request) {
 //	Produces :
 //	- application/json
 //
-//	Schemes: http,https
+//	Schemes: https
 //
 // 	Security:
 //
 //	Responses :
-//	default: [][]interface{}
-//	200: OK
-//	500: internal error
-// 	404: not found
+//	default:
 func GetChart(w http.ResponseWriter, r *http.Request) {
 	log.Println("GetChart calling.")
 	p := fsmanager.Project{}
@@ -263,7 +316,19 @@ func GetChart(w http.ResponseWriter, r *http.Request) {
 	JsonAsResponse(w, data)
 }
 
-// swagger:route GET /displayFly/{serialNumber}/{flyDate}  serialNumber flyDate
+// swagger:parameters getMaps
+type GetMapsParameters struct {
+
+	// serial number of the drone
+	// required: true
+	SerialNumber string
+
+	// fly date of instance
+	// required: true
+	FlyDate string
+}
+
+// GetMaps swagger:route GET /displayFly/{serialNumber}/{flyDate} serialNumber flyDate getMaps
 //
 // Get file for type type
 //
@@ -278,19 +343,18 @@ func GetChart(w http.ResponseWriter, r *http.Request) {
 // 	Security:
 //
 //	Responses :
-//	default: Point
-//	200: OK
-//	500: KO
-//	404: not found
+//	default: point
 func GetMaps(w http.ResponseWriter, r *http.Request) {
 	log.Println("GetMaps calling.")
 	p := fsmanager.Project{}
 	p.BaseDir = Conf.BasepathStorage
 	vars := mux.Vars(r)
+	// swagger:parameters serialNumber
 	serialNumber := vars["serialNumber"]
 	//serialNumber := r.URL.Query().Get("serialNumber")
 	log.Println("SerialNumber:" + serialNumber)
 	//flyDate := r.URL.Query().Get("flyDate")
+	// swagger:parameters flydate
 	flyDate := vars["flyDate"]
 	log.Println("flyDate:" + flyDate)
 	p.LoadPUD(serialNumber, flyDate)
