@@ -28,11 +28,11 @@ LDFLAGS=
 $(EXEC): organize $(SOURCES)
 		@echo "    Compilation des sources ${BUILD_TIME}"
 		@if  [ "arm" = "${GOARCH}" ]; then\
-		    GOPATH=$(PWD)/../.. GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC}-${VERSION} $(SOURCEDIR)/main.go;\
+		    GOPATH=$(PWD)/../.. GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC}-${VERSION}.${GOOS}-${GOARCH} $(SOURCEDIR)/main.go;\
 		else\
-            GOPATH=$(PWD)/../.. GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC}-${VERSION} $(SOURCEDIR)/main.go;\
+            GOPATH=$(PWD)/../.. GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC}-${VERSION}.${GOOS}-${GOARCH} $(SOURCEDIR)/main.go;\
         fi
-		@echo "    ${EXEC}-${VERSION} generated."
+		@echo "    ${EXEC}-${VERSION}.${GOOS}-${GOARCH} generated."
 
 deps: init
 		@echo "    Download packages"
@@ -49,7 +49,7 @@ execute:
 		./${EXEC}-${VERSION}
 
 clean:
-		@if [ -f "${EXEC}-${VERSION}" ] ; then rm ${EXEC}-${VERSION} ; fi
+		@if [ -f "${EXEC}-${VERSION}.${GOOS}-${GOARCH}" ] ; then rm ${EXEC}-${VERSION}.${GOOS}-${GOARCH} ; fi
 		@echo "    Nettoyage effectuee"
 
 package:  ${EXEC}
