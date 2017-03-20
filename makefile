@@ -52,7 +52,7 @@ clean:
 		@if [ -f "${EXEC}-${VERSION}.${GOOS}-${GOARCH}" ] ; then rm ${EXEC}-${VERSION}.${GOOS}-${GOARCH} ; fi
 		@echo "    Nettoyage effectuee"
 
-package:  ${EXEC}
+package:  ${EXEC} swagger
 		@zip -r ${EXEC}-${GOOS}-${GOARCH}-${VERSION}.zip ./${EXEC}-${VERSION} resources
 		@echo "    Archive ${EXEC}-${GOOS}-${GOARCH}-${VERSION}.zip created"
 
@@ -62,5 +62,5 @@ audit:   ${EXEC}
 
 swagger:
 	@echo "Generate swagger json file specs"
-	@GOPATH=$(PWD)/../.. go run ${GOPATH}/src/github.com/go-swagger/go-swagger/cmd/swagger/swagger.go generate spec -m -b ./routes > resources/swagger.json
+	@GOPATH=$(PWD)/../.. GOOS=linux GOARCH=amd64 go run ${GOPATH}/src/github.com/go-swagger/go-swagger/cmd/swagger/swagger.go generate spec -m -b ./routes > resources/swagger.json
 	@echo "Specs generate at resources/swagger.json"
