@@ -2,12 +2,12 @@ package main
 
 //go:generate swagger generate spec -o swagger.json
 import (
-	"bebopanalyzer/configuration"
-	"bebopanalyzer/fsmanager"
-	"bebopanalyzer/model"
-	"bebopanalyzer/routes"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/jeromelesaux/bebopanalyzer/configuration"
+	"github.com/jeromelesaux/bebopanalyzer/fsmanager"
+	"github.com/jeromelesaux/bebopanalyzer/model"
+	"github.com/jeromelesaux/bebopanalyzer/routes"
 	"net/http"
 	"os"
 )

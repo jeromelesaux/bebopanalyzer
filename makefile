@@ -4,19 +4,16 @@ MV=mv
 
 
 SOURCEDIR=.
-SOURCES := $(shell find $(SOURCEDIR) -name '*.go')
-#GOPATH=$(SOURCEDIR)/
-GOOS=linux
-GOARCH=amd64
-#GOARCH=arm
+SOURCES:= $(shell find $(SOURCEDIR) -name '*.go')
 GOARM=7
+GOARCH=amd64
 
 
 EXEC=bebopanalyzer
 
 VERSION=1.9
 BUILD_TIME=`date +%FT%T%z`
-PACKAGES := fmt path/filepath github.com/metakeule/fmtdate github.com/ptrv/go-gpx github.com/gorilla/mux github.com/gorilla/mux
+PACKAGES:= github.com/metakeule/fmtdate github.com/ptrv/go-gpx github.com/gorilla/mux github.com/gorilla/mux
 
 
 LIBS= 
@@ -28,9 +25,9 @@ LDFLAGS=
 $(EXEC): organize $(SOURCES)
 		@echo "    Compilation des sources ${BUILD_TIME}"
 		@if  [ "arm" = "${GOARCH}" ]; then\
-		    GOPATH=$(PWD)/../.. GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC}-${VERSION}.${GOOS}-${GOARCH} $(SOURCEDIR)/main.go;\
+		   GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC}-${VERSION}.${GOOS}-${GOARCH} $(SOURCEDIR)/main.go;\
 		else\
-            GOPATH=$(PWD)/../.. GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC}-${VERSION}.${GOOS}-${GOARCH} $(SOURCEDIR)/main.go;\
+           GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC}-${VERSION}.${GOOS}-${GOARCH} $(SOURCEDIR)/main.go;\
         fi
 		@echo "    ${EXEC}-${VERSION}.${GOOS}-${GOARCH} generated."
 
@@ -62,5 +59,5 @@ audit:   ${EXEC}
 
 swagger:
 	@echo "Generate swagger json file specs"
-	@GOPATH=$(PWD)/../.. GOOS=linux GOARCH=amd64 go run ${GOPATH}/src/github.com/go-swagger/go-swagger/cmd/swagger/swagger.go generate spec -m -b ./routes > resources/swagger.json
+	@GOOS=linux GOARCH=amd64 go run ${GOPATH}/src/github.com/go-swagger/go-swagger/cmd/swagger/swagger.go generate spec -m -b ./routes > resources/swagger.json
 	@echo "Specs generate at resources/swagger.json"

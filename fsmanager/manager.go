@@ -2,13 +2,13 @@ package fsmanager
 
 import (
 	"archive/zip"
-	"bebopanalyzer/kml"
-	"bebopanalyzer/message"
-	"bebopanalyzer/model"
 	"encoding/csv"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"github.com/jeromelesaux/bebopanalyzer/kml"
+	"github.com/jeromelesaux/bebopanalyzer/message"
+	"github.com/jeromelesaux/bebopanalyzer/model"
 	"github.com/metakeule/fmtdate"
 	"github.com/ptrv/go-gpx"
 	"io"

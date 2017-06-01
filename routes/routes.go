@@ -25,13 +25,13 @@ package routes
 
 import (
 	"archive/zip"
-	"bebopanalyzer/configuration"
-	"bebopanalyzer/fsmanager"
-	"bebopanalyzer/model"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/jeromelesaux/bebopanalyzer/configuration"
+	"github.com/jeromelesaux/bebopanalyzer/fsmanager"
+	"github.com/jeromelesaux/bebopanalyzer/model"
 	"io"
 	"io/ioutil"
 	"log"
