@@ -41,6 +41,7 @@ func main() {
 		router.HandleFunc("/list", routes.GetListTree)
 		router.HandleFunc("/chart/{serialNumber}/{flyDate}", routes.GetChart)
 		router.HandleFunc("/displayFly/{serialNumber}/{flyDate}", routes.GetMaps)
+		router.HandleFunc("/rebuild", routes.RebuildData)
 		router.PathPrefix("/").Handler(http.FileServer(http.Dir("./resources")))
 		fmt.Println(http.ListenAndServe(Conf.HttpPort, router))
 	}

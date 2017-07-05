@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"github.com/jeromelesaux/bebopanalyzer/configuration"
 	"github.com/jeromelesaux/bebopanalyzer/kml"
 	"github.com/jeromelesaux/bebopanalyzer/message"
 	"github.com/jeromelesaux/bebopanalyzer/model"
@@ -195,7 +196,7 @@ func (p *Project) CreateKmlFile(filepath string) {
 
 				t := p.Data.TimeAt(i)
 				minutes, secondes := math.Modf(t / 60000)
-				td := fmt.Sprintf("%.0f:%.2f", minutes, secondes)
+				td := fmt.Sprintf("%.0f:%.3f", minutes, secondes)
 				speed := p.Data.SpeedAt(i)
 				d := fmt.Sprintf("Altitude = %.2f meter<br><br>"+
 					"Speed = %.2f meter/second %.2f kmeter/hour<br><br>"+
@@ -250,6 +251,38 @@ func (p *Project) CreateKmlFile(filepath string) {
 		}
 	}
 	z.Close()
+}
+
+func (p *Project) RebuildDataFiles(conf *configuration.AppConfiguration) {
+	var dirSep = string(filepath.Separator)
+	f, err := ioutil.ReadDir(p.BaseDir)
+	for _, droneId := range f {
+		subf, err := ioutil.ReadDir(p.BaseDir + dirSep + droneId.Name())
+		if err != nil {
+			log.Println("Error while scanning directory " + p.BaseDir + " " + err.Error())
+		} else {
+			for _, date := range subf {
+				path := p.BaseDir + dirSep + droneId.Name() + dirSep + date.Name() + dirSep + "Raw" + dirSep + "original.json"
+				o, err := os.Open(path)
+				if err != nil {
+					log.Println("Error while opening file " + path + " " + err.Error())
+					continue
+				}
+				pud := &model.PUD{}
+				if err = json.NewDecoder(o).Decode(pud); err != nil {
+					log.Println("Error while decoding file " + path + " " + err.Error())
+					continue
+				}
+				project := &Project{BaseDir: conf.BasepathStorage, Name: pud.SerialNumber, Data: pud, Date: pud.Date}
+				project.PerformAnalyse(pud)
+			}
+		}
+		log.Println("filename " + droneId.Name() + " from filepath " + p.BaseDir)
+	}
+	if err != nil {
+		log.Println("Error while scanning directory " + p.BaseDir + " " + err.Error())
+	}
+
 }
 
 func (p *Project) ListAllDrones() []message.JsonSerialNumberRow {

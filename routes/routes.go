@@ -361,6 +361,16 @@ func GetMaps(w http.ResponseWriter, r *http.Request) {
 	data := p.GetMapsData(serialNumber, flyDate)
 	JsonAsResponse(w, data)
 }
+
+func RebuildData(w http.ResponseWriter, r *http.Request) {
+	p := fsmanager.Project{}
+	p.BaseDir = Conf.BasepathStorage
+	go func() {
+		p.RebuildDataFiles(Conf)
+	}()
+	JsonAsResponse(w, "rebuilding all your data")
+}
+
 func FileAsResponse(w http.ResponseWriter, streamBytes []byte, filename string) {
 	log.Println("Writing file.")
 	b := bytes.NewBuffer(streamBytes)

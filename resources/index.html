@@ -55,6 +55,22 @@
                 <p>This web server is dedicated to the Bebop flies, you can store and analyse your flies</p>
                 <br/>
                 <img src="bebop_fly.jpg" width="350px">
+                <br>
+                <button type="submit" class="btn btn-primary start" onclick="rebuild()">
+                    <span>Rebuild data</span>
+                </button>
+
+                <script type="text/javascript">
+                    function rebuild() {
+                        $.ajax({
+                            dataType: "json",
+                            url: 'rebuild',
+                            async: true
+                        }).done(function (data) {
+                            window.alert(data)
+                        });
+                    }
+                </script>
             </div>
             <div class="tab-pane" id="analyse">
                 <h1>Fly files upload</h1>
@@ -421,6 +437,9 @@
 
 
 
+
+
+
     </script>
     <!-- The template to display files available for download -->
     <script id="template-download" type="text/x-tmpl">
@@ -458,6 +477,9 @@
         </td>
     </tr>
 {% } %}
+
+
+
 
 
 

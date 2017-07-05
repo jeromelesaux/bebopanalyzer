@@ -11,7 +11,7 @@ GOARM=7
 
 EXEC=bebopanalyzer
 
-VERSION=1.10
+VERSION=1.11
 BUILD_TIME=`date +%FT%T%z`
 PACKAGES:= github.com/metakeule/fmtdate github.com/ptrv/go-gpx github.com/gorilla/mux github.com/gorilla/mux
 
