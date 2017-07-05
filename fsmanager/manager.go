@@ -20,6 +20,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"math"
 )
 
 var CSV_FILE_NAME = "data.csv"
@@ -32,9 +34,15 @@ var GOOGLEEARTH_INTERNAL_FILENAME = "doc.kml"
 
 type SortByModified []os.FileInfo
 
-func (f SortByModified) Len() int           { return len(f) }
-func (f SortByModified) Less(i, j int) bool { return f[i].ModTime().Unix() > f[j].ModTime().Unix() }
-func (f SortByModified) Swap(i, j int)      { f[i], f[j] = f[j], f[i] }
+func (f SortByModified) Len() int {
+	return len(f)
+}
+func (f SortByModified) Less(i, j int) bool {
+	return f[i].ModTime().Unix() > f[j].ModTime().Unix()
+}
+func (f SortByModified) Swap(i, j int) {
+	f[i], f[j] = f[j], f[i]
+}
 
 type Project struct {
 	BaseDir       string
@@ -149,28 +157,76 @@ func (p *Project) CreateKmlFile(filepath string) {
 	name := "Fly of the " + p.Data.Date + " for the drone " + p.Data.ProductName + " " + p.Data.SerialNumber
 	description := "Fly " + p.Data.Date + " for the drone " + p.Data.ProductName + "<br>Serial number " + p.Data.SerialNumber + "<br>Version " + p.Data.Version + "<br>Hardware version " + p.Data.HardwareVersion + "<br>Software version " + p.Data.SoftwareVersion + "<br>UUID " + p.Data.Uuid + "<br>Number of crashs " + strconv.Itoa(p.Data.Crash) + "<br>Controller application " + p.Data.ControllerApplication + "<br>Controller model " + p.Data.ControllerModel + "<br>Fly duration " + strconv.Itoa(p.Data.TotalRunTime/60000) + " minutes"
 
-	kmlObject := kml.NewKML("", 1)
+	kmlObject := kml.NewKML("", 0)
+	//kmlObject.Document.Style = kml.Style{IconStyle: kml.IconStyle{Scale: .5, Color: "90f00000", Icon: kml.Icon{Href: "http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png"}},
+	//	Id:         "ownPlacemark",
+	//	LabelStyle: kml.LabelStyle{Color: "60ffffff", Scale: .5},
+	//}
 	kmlObject.Document.Name = name
-	placemark := kmlObject.Document.Placemark[0]
+
+	placemark := kml.Placemark{Style: kml.Style{LineStyle: kml.LineStyle{Color: "ff00ffff", Width: 3}}}
 	placemark.Name = name
 	placemark.Description.Data = description
 
-	lineString := kml.LineString{}
-	lineString.AltitudeMode = kml.AltitudeMode[kml.RelativeToGround]
-	lineString.Extrude = 1
+	lineString := kml.LineString{Tessellate: 1}
+	lineString.AltitudeMode = kml.AltitudeMode[kml.RelativeToSeaFloor]
+	lineString.Extrude = 0
+	start := kml.Placemark{Name: "Start"}
+	isStart := true
 
 	for i := 0; i < len(p.Data.DetailsData); i++ {
+
 		gpsAvailable := p.Data.ProductGpsAvailableAt(i)
 
 		if gpsAvailable {
+
 			longitude := p.Data.ProductGpsLongitudeAt(i)
 			latitude := p.Data.ProductGpsLatidudeAt(i)
 			altitude := p.Data.AltitudeAt(i) / 1000
 			if latitude != 500. {
 				lineString.AddCoordinate(longitude, latitude, altitude)
+
+				if isStart {
+					start.Style = kml.Style{IconStyle: kml.IconStyle{Scale: 1, Icon: kml.Icon{Href: "http://maps.google.com/mapfiles/kml/shapes/star.png"}}}
+					start.Point = kml.Point{Coordinates: kml.NewCoordinatesOffset(longitude, latitude)}
+					kmlObject.AddPlacemark(start)
+					isStart = false
+				}
+
+				t := p.Data.TimeAt(i)
+				minutes, secondes := math.Modf(t / 60000)
+				td := fmt.Sprintf("%.0f:%.2f", minutes, secondes)
+				speed := p.Data.SpeedAt(i)
+				d := fmt.Sprintf("Altitude = %.2f meter<br><br>"+
+					"Speed = %.2f meter/second %.2f kmeter/hour<br><br>"+
+					"Battery state = %.2f Percentage <br><br>",
+					altitude,
+					speed,
+					(speed * 3.6),
+					p.Data.BatteryLevelAt(i),
+				)
+				p := kml.Placemark{
+					Name:        td,
+					Description: kml.Description{Data: d},
+					StyleUrl:    "#ownPlacemark",
+					Style:       kml.Style{IconStyle: kml.IconStyle{Scale: .5, Color: "90f00000", Icon: kml.Icon{Href: "http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png"}}},
+					Point: kml.Point{
+						Coordinates:  kml.NewCoordinates(longitude, latitude, altitude),
+						AltitudeMode: kml.AltitudeMode[kml.RelativeToSeaFloor],
+					},
+				}
+				kmlObject.AddPlacemark(p)
 			}
 		}
 	}
+	last := len(p.Data.DetailsData) - 1
+	end := kml.Placemark{
+		Name:  "End",
+		Point: kml.Point{Coordinates: kml.NewCoordinatesOffset(p.Data.ProductGpsLongitudeAt(last), p.Data.ProductGpsLatidudeAt(last))},
+		Style: kml.Style{IconStyle: kml.IconStyle{Scale: 1, Icon: kml.Icon{Href: "http://maps.google.com/mapfiles/kml/shapes/forbidden.png"}}},
+	}
+	kmlObject.AddPlacemark(end)
+
 	placemark.AddLineString(lineString)
 	kmlObject.AddPlacemark(placemark)
 

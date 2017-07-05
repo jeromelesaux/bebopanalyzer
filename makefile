@@ -6,12 +6,12 @@ MV=mv
 SOURCEDIR=.
 SOURCES:= $(shell find $(SOURCEDIR) -name '*.go')
 GOARM=7
-GOARCH=amd64
+#GOARCH=amd64
 
 
 EXEC=bebopanalyzer
 
-VERSION=1.9
+VERSION=1.10
 BUILD_TIME=`date +%FT%T%z`
 PACKAGES:= github.com/metakeule/fmtdate github.com/ptrv/go-gpx github.com/gorilla/mux github.com/gorilla/mux
 
@@ -25,11 +25,11 @@ LDFLAGS=
 $(EXEC): organize $(SOURCES)
 		@echo "    Compilation des sources ${BUILD_TIME}"
 		@if  [ "arm" = "${GOARCH}" ]; then\
-		   GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC}-${VERSION}.${GOOS}-${GOARCH} $(SOURCEDIR)/main.go;\
+		   GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC} $(SOURCEDIR)/main.go;\
 		else\
-           GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC}-${VERSION}.${GOOS}-${GOARCH} $(SOURCEDIR)/main.go;\
+           GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC} $(SOURCEDIR)/main.go;\
         fi
-		@echo "    ${EXEC}-${VERSION}.${GOOS}-${GOARCH} generated."
+		@echo "    ${EXEC} version:${VERSION}.${GOOS}-${GOARCH} generated."
 
 deps: init
 		@echo "    Download packages"
@@ -43,14 +43,14 @@ init: clean
 		@echo "    Init of the project"
 
 execute:
-		./${EXEC}-${VERSION}
+		./${EXEC} conf.json
 
 clean:
-		@if [ -f "${EXEC}-${VERSION}.${GOOS}-${GOARCH}" ] ; then rm ${EXEC}-${VERSION}.${GOOS}-${GOARCH} ; fi
+		@if [ -f "${EXEC}" ] ; then rm ${EXEC} ; fi
 		@echo "    Nettoyage effectuee"
 
 package:  ${EXEC} swagger
-		@zip -r ${EXEC}-${GOOS}-${GOARCH}-${VERSION}.zip ./${EXEC}-${VERSION} resources
+		@zip -r ${EXEC}-${GOOS}-${GOARCH}-${VERSION}.zip ./${EXEC} resources
 		@echo "    Archive ${EXEC}-${GOOS}-${GOARCH}-${VERSION}.zip created"
 
 audit:   ${EXEC}

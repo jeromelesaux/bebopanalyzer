@@ -2,6 +2,7 @@ package kml
 
 import (
 	"encoding/xml"
+	"fmt"
 	"strconv"
 )
 
@@ -24,7 +25,15 @@ var AltitudeMode = [...]string{
 }
 
 type Point struct {
-	Coordinates string `xml:"coordinates, omitempty"`
+	AltitudeMode string `xml:"altitudeMode,omitempty"`
+	Coordinates  string `xml:"coordinates"`
+}
+
+func NewCoordinates(longitude, latitude, altitude float64) string {
+	return fmt.Sprintf("%f,%f,%f", longitude, latitude, altitude)
+}
+func NewCoordinatesOffset(longitude, latitude float64) string {
+	return fmt.Sprintf("%f,%f,(AltitudeAboveSeaLevelOffset+1)", longitude, latitude)
 }
 
 type Description struct {
@@ -35,36 +44,50 @@ type Description struct {
 type Placemark struct {
 	Name        string       `xml:"name"`
 	Description Description  `xml:"description"`
-	StyleUrl    string       `xml:"styleUrl,omitempty"`
+	StyleUrl    string       `xml:"styleUrl"`
+	Style       Style        `xml:"Style,omitempty"`
 	Point       Point        `xml:"Point,omitempty"`
 	LineString  []LineString `xml:"LineString,omitempty"`
 }
 
 // linestring google template
 type LineString struct {
-	Extrude      int    `xml:"extrude,omitempty"`
-	AltitudeMode string `xml:"altitudeMode,omitempty"`
-	Coordinates  string `xml:"coordinates,omitempty"`
+	Extrude      int    `xml:"extrude"`
+	AltitudeMode string `xml:"altitudeMode"`
+	Coordinates  string `xml:"coordinates"`
+	Tessellate   int    `xml:"tessellate"`
 }
 
 type Icon struct {
-	Href  string  `xml:"href"`
-	Scale float64 `xml:"scale"`
+	Href string `xml:"href,omitempty"`
 }
 
 type IconStyle struct {
-	Id   string `xml:"id,attr"`
-	Icon Icon   `xml:"Icon"`
+	Id    string  `xml:"id,attr,omitempty"`
+	Icon  Icon    `xml:"Icon,omitempty"`
+	Color string  `xml:"color,omitempty"`
+	Scale float64 `xml:"scale,omitempty"`
+}
+
+type LabelStyle struct {
+	Color string  `xml:"color,omitempty"`
+	Scale float64 `xml:"scale,omitempty"`
+}
+type LineStyle struct {
+	Color string `xml:"color,omitempty"`
+	Width int    `xml:"width,omitempty"`
 }
 
 type Style struct {
-	Id        string    `xml:"id,attr"`
-	IconStyle IconStyle `xml:"IconStyle"`
+	Id         string     `xml:"id,attr,omitempty"`
+	IconStyle  IconStyle  `xml:"IconStyle,omitempty"`
+	LabelStyle LabelStyle `xml:"LabelStyle,omitempty"`
+	LineStyle  LineStyle  `xml:"LineStyle,omitempty"`
 }
 
 type Document struct {
 	Name      string      `xml:"name"`
-	Style     Style       `xml:"Style,omitempty"`
+	Style     Style       `xml:"Style"`
 	Placemark []Placemark `xml:"Placemark"`
 }
 
