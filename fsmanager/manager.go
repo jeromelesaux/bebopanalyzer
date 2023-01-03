@@ -6,15 +6,9 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/jeromelesaux/bebopanalyzer/configuration"
-	"github.com/jeromelesaux/bebopanalyzer/kml"
-	"github.com/jeromelesaux/bebopanalyzer/message"
-	"github.com/jeromelesaux/bebopanalyzer/model"
-	"github.com/metakeule/fmtdate"
-	"github.com/ptrv/go-gpx"
 	"io"
-	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -22,25 +16,35 @@ import (
 	"strings"
 	"time"
 
-	"math"
+	"github.com/jeromelesaux/bebopanalyzer/configuration"
+	"github.com/jeromelesaux/bebopanalyzer/kml"
+	"github.com/jeromelesaux/bebopanalyzer/message"
+	"github.com/jeromelesaux/bebopanalyzer/model"
+	"github.com/metakeule/fmtdate"
+	"github.com/ptrv/go-gpx"
 )
 
-var CSV_FILE_NAME = "data.csv"
-var JSON_FILENAME = "original.json"
-var GOOGLEEARTH_FILENAME = "fly.kmz"
-var GPX_FILENAME = "fly.gpx"
-var GOOGLEEARTH_INTERNAL_FILENAME = "doc.kml"
+var (
+	CSV_FILE_NAME                 = "data.csv"
+	JSON_FILENAME                 = "original.json"
+	GOOGLEEARTH_FILENAME          = "fly.kmz"
+	GPX_FILENAME                  = "fly.gpx"
+	GOOGLEEARTH_INTERNAL_FILENAME = "doc.kml"
+)
 
-//var BASEDIR_NAME = "Data"
-
-type SortByModified []os.FileInfo
+// var BASEDIR_NAME = "Data"
+type SortByModified []os.DirEntry
 
 func (f SortByModified) Len() int {
 	return len(f)
 }
+
 func (f SortByModified) Less(i, j int) bool {
-	return f[i].ModTime().Unix() > f[j].ModTime().Unix()
+	di, _ := f[i].Info()
+	dj, _ := f[j].Info()
+	return di.ModTime().Unix() > dj.ModTime().Unix()
 }
+
 func (f SortByModified) Swap(i, j int) {
 	f[i], f[j] = f[j], f[i]
 }
@@ -62,7 +66,6 @@ func (p *Project) PerformAnalyse(pud *model.PUD) {
 }
 
 func (p *Project) CreateBaseFS() {
-
 	if p.Data != nil {
 		p.RawData = "." + string(filepath.Separator) + p.BaseDir + string(filepath.Separator) + p.Name + string(filepath.Separator) + p.Date + string(filepath.Separator) + "Raw"
 		p.GeneratedData = "." + string(filepath.Separator) + p.BaseDir + string(filepath.Separator) + p.Name + string(filepath.Separator) + p.Date + string(filepath.Separator) + "Generated"
@@ -84,7 +87,6 @@ func (p *Project) CreateBaseFS() {
 	if err != nil {
 		fmt.Println("Error with error : " + err.Error())
 	}
-
 }
 
 func (p *Project) CopyOriginalStruct(pud *model.PUD) (n int64) {
@@ -115,7 +117,6 @@ func (p *Project) LoadPUD(serialNumber string, flyDate string) {
 		log.Println("Error while decode from file " + path + " with error " + err.Error())
 		return
 	}
-	return
 }
 
 func (p *Project) CopyOriginalFile(file string) int64 {
@@ -239,7 +240,7 @@ func (p *Project) CreateKmlFile(filepath string) {
 	b, _ := os.Create(filepath)
 	z := zip.NewWriter(b)
 	kmlContent := string(content)
-	var files = []struct{ Name, Body string }{{GOOGLEEARTH_INTERNAL_FILENAME, kmlContent}}
+	files := []struct{ Name, Body string }{{GOOGLEEARTH_INTERNAL_FILENAME, kmlContent}}
 	for _, file := range files {
 		f, err := z.Create(file.Name)
 		if err != nil {
@@ -254,10 +255,10 @@ func (p *Project) CreateKmlFile(filepath string) {
 }
 
 func (p *Project) RebuildDataFiles(conf *configuration.AppConfiguration) {
-	var dirSep = string(filepath.Separator)
-	f, err := ioutil.ReadDir(p.BaseDir)
+	dirSep := string(filepath.Separator)
+	f, err := os.ReadDir(p.BaseDir)
 	for _, droneId := range f {
-		subf, err := ioutil.ReadDir(p.BaseDir + dirSep + droneId.Name())
+		subf, err := os.ReadDir(p.BaseDir + dirSep + droneId.Name())
 		if err != nil {
 			log.Println("Error while scanning directory " + p.BaseDir + " " + err.Error())
 		} else {
@@ -282,18 +283,16 @@ func (p *Project) RebuildDataFiles(conf *configuration.AppConfiguration) {
 	if err != nil {
 		log.Println("Error while scanning directory " + p.BaseDir + " " + err.Error())
 	}
-
 }
 
 func (p *Project) ListAllDrones() []message.JsonSerialNumberRow {
 	r := []message.JsonSerialNumberRow{}
-	f, err := ioutil.ReadDir(p.BaseDir)
-
+	f, err := os.ReadDir(p.BaseDir)
 	if err != nil {
 		log.Println("Error while scanning directory " + p.BaseDir + " " + err.Error())
 	}
 	for _, file := range f {
-		el := message.JsonSerialNumberRow{file.Name()}
+		el := message.JsonSerialNumberRow{SerialNumber: file.Name()}
 		r = append(r, el)
 	}
 	return r
@@ -303,13 +302,13 @@ func (p *Project) GetTree() []message.JsonDataListResponse {
 	r := []message.JsonDataListResponse{}
 	root := p.BaseDir
 
-	dir, err := ioutil.ReadDir(root)
+	dir, err := os.ReadDir(root)
 	if err != nil {
 		log.Println("Error while reading basedir :" + root + " " + err.Error())
 	}
 
 	for _, f := range SortByModified(dir) {
-		subDir, err := ioutil.ReadDir(root + string(filepath.Separator) + f.Name())
+		subDir, err := os.ReadDir(root + string(filepath.Separator) + f.Name())
 		if err != nil {
 			log.Println("Error while reading basedir :" + f.Name() + " " + err.Error())
 		}
@@ -327,7 +326,7 @@ func (p *Project) GetTree() []message.JsonDataListResponse {
 			index := len(p.DetailsData) - 2
 			latitude := p.ProductGpsLatidudeAt(index)
 			longitude := p.ProductGpsLongitudeAt(index)
-			//fmt.Printf("%d lng %f lat %f %s\n",index,longitude,latitude,p.Date)
+			// fmt.Printf("%d lng %f lat %f %s\n",index,longitude,latitude,p.Date)
 			t.Place = getPlace(longitude, latitude)
 			r = append(r, t)
 		}
@@ -346,7 +345,10 @@ func getPlace(longitude, latitude float64) string {
 		fmt.Println("error while quering google geocoder with error : " + err.Error() + " with longitude " + strconv.FormatFloat(longitude, 'f', 6, 64) + " and latitude " + strconv.FormatFloat(latitude, 'f', 6, 64))
 	}
 	defer response.Body.Close()
-	json.NewDecoder(response.Body).Decode(&target)
+	err = json.NewDecoder(response.Body).Decode(&target)
+	if err != nil {
+		fmt.Println("error while decoding json file")
+	}
 	if target["status"].(string) == "OK" {
 		address := target["results"].([]interface{})[0].(map[string]interface{})["formatted_address"]
 		return address.(string)
@@ -358,9 +360,8 @@ func getPlace(longitude, latitude float64) string {
 }
 
 func (p *Project) GetKmzFile(serialNumber string, flyDate string) []byte {
-
 	path := p.BaseDir + string(filepath.Separator) + serialNumber + string(filepath.Separator) + flyDate + string(filepath.Separator) + "Generated" + string(filepath.Separator) + GOOGLEEARTH_FILENAME
-	f, err := ioutil.ReadFile(path)
+	f, err := os.ReadFile(path)
 	if err != nil {
 		log.Println("Error while reading file :" + path + " " + err.Error())
 	}
@@ -369,9 +370,8 @@ func (p *Project) GetKmzFile(serialNumber string, flyDate string) []byte {
 }
 
 func (p *Project) GetCsvFile(serialNumber string, flyDate string) []byte {
-
 	path := p.BaseDir + string(filepath.Separator) + serialNumber + string(filepath.Separator) + flyDate + string(filepath.Separator) + "Generated" + string(filepath.Separator) + CSV_FILE_NAME
-	f, err := ioutil.ReadFile(path)
+	f, err := os.ReadFile(path)
 	if err != nil {
 		log.Println("Error while reading file :" + path + " " + err.Error())
 	}
@@ -380,9 +380,8 @@ func (p *Project) GetCsvFile(serialNumber string, flyDate string) []byte {
 }
 
 func (p *Project) GetOriginalFile(serialNumber string, flyDate string) []byte {
-
 	path := p.BaseDir + string(filepath.Separator) + serialNumber + string(filepath.Separator) + flyDate + string(filepath.Separator) + "Raw" + string(filepath.Separator) + JSON_FILENAME
-	f, err := ioutil.ReadFile(path)
+	f, err := os.ReadFile(path)
 	if err != nil {
 		log.Println("Error while reading file :" + path + " " + err.Error())
 	}
@@ -406,8 +405,8 @@ func (p *Project) GetChartData(serialNumber string, flyDate string) [][]interfac
 			r[1] = speed
 			r[2] = altitude
 			r[3] = batteryLevel
-			//c := message.JsonChartDataResponse{time, batteryLevel, altitude, speed}
-			//log.Println("time:" + strconv.FormatFloat(time, 'f', 6, 10))
+			// c := message.JsonChartDataResponse{time, batteryLevel, altitude, speed}
+			// log.Println("time:" + strconv.FormatFloat(time, 'f', 6, 10))
 			m = append(m, r)
 		}
 	}
@@ -417,15 +416,15 @@ func (p *Project) GetChartData(serialNumber string, flyDate string) [][]interfac
 func (p *Project) GetMapsData(serialNumber string, flyDate string) []message.Point {
 	m := []message.Point{}
 	log.Println("Entered in GetMapsData and data length is " + strconv.Itoa(len(p.Data.DetailsData)))
-	for i, _ := range p.Data.DetailsData {
+	for i := range p.Data.DetailsData {
 		gpsAvailable := p.Data.ProductGpsAvailableAt(i)
-		//log.Println("GpsIsavailable :" + strconv.FormatBool(gpsAvailable))
+		// log.Println("GpsIsavailable :" + strconv.FormatBool(gpsAvailable))
 		if gpsAvailable {
 			latitude := p.Data.ProductGpsLatidudeAt(i)
 			longitude := p.Data.ProductGpsLongitudeAt(i)
-			//time := p.Data.TimeAt(i) / 60000
-			//name := strconv.FormatFloat(time, 'f', 8, 64)
-			//log.Println("latitude:" + strconv.FormatFloat(latitude, 'f', 10, 64) + "&longitude:" + strconv.FormatFloat(longitude, 'f', 10, 64))
+			// time := p.Data.TimeAt(i) / 60000
+			// name := strconv.FormatFloat(time, 'f', 8, 64)
+			// log.Println("latitude:" + strconv.FormatFloat(latitude, 'f', 10, 64) + "&longitude:" + strconv.FormatFloat(longitude, 'f', 10, 64))
 			if latitude != 500. && longitude != 500. {
 				point := message.Point{Description: "", Latitude: latitude, Longitude: longitude}
 				m = append(m, point)
@@ -452,20 +451,21 @@ func (p *Project) GetGPXData(serialNumber string, flyDate string) []byte {
 		fmt.Println(err.Error())
 	}
 
-	for key, _ := range p.Data.DetailsData {
+	for key := range p.Data.DetailsData {
 		if p.Data.ProductGpsLatidudeAt(key) != 500. && p.Data.ProductGpsLongitudeAt(key) != 500. {
 			secondes := p.Data.TimeAt(key) / 60000
 			when := time.Duration(secondes) * time.Second
 			startTime = startTime.Add(when)
 
-			trkpt := gpx.Wpt{Lat: p.Data.ProductGpsLatidudeAt(key),
+			trkpt := gpx.Wpt{
+				Lat:       p.Data.ProductGpsLatidudeAt(key),
 				Lon:       p.Data.ProductGpsLongitudeAt(key),
 				Ele:       p.Data.AltitudeAt(key) / 1000,
-				Timestamp: startTime.Format(time.RFC3339)}
+				Timestamp: startTime.Format(time.RFC3339),
+			}
 
 			trkSeg.Waypoints = append(trkSeg.Waypoints, trkpt)
 		}
-
 	}
 	trk.Segments = append(trk.Segments, trkSeg)
 	gpxObject.Tracks = append(gpxObject.Tracks, trk)

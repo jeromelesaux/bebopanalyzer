@@ -33,27 +33,27 @@ type PUD struct {
 }
 
 type DetailValue struct {
-	time                       float64
-	battery_level              float64
-	controller_gps_longitude   float64
-	controller_gps_latitude    float64
-	flying_state               float64
-	alert_state                float64
-	wifi_signal                float64
-	product_gps_available      bool
-	product_gps_longitude      float64
-	product_gps_latitude       float64
-	product_gps_position_error float64
-	product_gps_sv_number      int64
-	speed_vx                   float64
-	speed_vy                   float64
-	speed_vz                   float64
-	angle_phi                  float64
-	angle_theta                float64
-	angle_psi                  float64
-	altitude                   float64
-	flip_type                  float64
-	speed                      float64
+	Time                    float64 `json:"time"`
+	BatteryLevel            float64 `json:"battery_level"`
+	ControllerGpsLongitude  float64 `json:"controller_gps_longitude"`
+	ControllerGpsLatitude   float64 `json:"controller_gps_latitude"`
+	FlyingState             float64 `json:"flying_state"`
+	AlertState              float64 `json:"alert_state"`
+	WifiSignal              float64 `json:"wifi_signal"`
+	ProductGpsAvailable     bool    `json:"product_gps_available"`
+	ProductGpsLongitude     float64 `json:"product_gps_longitude"`
+	ProductGpsLatitude      float64 `json:"product_gps_latitude"`
+	ProductGpsPositionError float64 `json:"product_gps_position_error"`
+	ProductGpsSVNumber      int64   `json:"product_gps_sv_number"`
+	SpeedVX                 float64 `json:"speed_vx"`
+	SpeedVY                 float64 `json:"speed_vy"`
+	SpeedVZ                 float64 `json:"speed_vz"`
+	AnglePhi                float64 `json:"angle_phi"`
+	AngleTheta              float64 `json:"angle_theta"`
+	AnglePsi                float64 `json:"angle_psi"`
+	Altitude                float64 `json:"altitude"`
+	FlipType                float64 `json:"flip_type"`
+	Speed                   float64 `json:"speed"`
 }
 
 func (pud *PUD) IndexForKey(keySearch string) int {

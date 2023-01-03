@@ -28,18 +28,18 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/jeromelesaux/bebopanalyzer/configuration"
-	"github.com/jeromelesaux/bebopanalyzer/fsmanager"
-	"github.com/jeromelesaux/bebopanalyzer/model"
 	"io"
-	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
+
+	"github.com/gorilla/mux"
+	"github.com/jeromelesaux/bebopanalyzer/configuration"
+	"github.com/jeromelesaux/bebopanalyzer/fsmanager"
+	"github.com/jeromelesaux/bebopanalyzer/model"
 )
 
 var Conf *configuration.AppConfiguration
@@ -53,7 +53,6 @@ func importFlyWG(pud *model.PUD, fis *FileInfos, fileInfo *FileInfo, wg *sync.Wa
 		}
 		wg.Done()
 	}()
-
 }
 
 // swagger:parameters import
@@ -67,14 +66,14 @@ type FileImported struct {
 // Import JSON fly metadata
 //
 //	Consumes:
-// 	- multipart/form-data
+//	- multipart/form-data
 //
 //	Produces :
 //	- application/json
 //
 //	Schemes: https
 //
-// 	Security:
+//	Security:
 //
 //	Responses :
 //	default: fileInfos
@@ -90,16 +89,16 @@ func AnalyseFly(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/javascript")
 	mr, err := r.MultipartReader()
 	if err != nil {
-		//msg := "500 Internal Server Error: " + err.Error()
-		//http.Error(w, msg, http.StatusInternalServerError)
-		//fmt.Println(err.Error())
+		// msg := "500 Internal Server Error: " + err.Error()
+		// http.Error(w, msg, http.StatusInternalServerError)
+		// fmt.Println(err.Error())
 		return
 	}
 	r.Form, err = url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
-		//msg := "500 Internal Server Error: " + err.Error()
-		//http.Error(w, msg, http.StatusInternalServerError)
-		//fmt.Println(err.Error())
+		// msg := "500 Internal Server Error: " + err.Error()
+		// http.Error(w, msg, http.StatusInternalServerError)
+		// fmt.Println(err.Error())
 		return
 	}
 
@@ -109,9 +108,9 @@ func AnalyseFly(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		if err != nil {
-			//msg := "500 Internal Server Error: " + err.Error()
-			//http.Error(w, msg, http.StatusInternalServerError)
-			//fmt.Println(err.Error())
+			// msg := "500 Internal Server Error: " + err.Error()
+			// http.Error(w, msg, http.StatusInternalServerError)
+			// fmt.Println(err.Error())
 			return
 		}
 		if name := part.FormName(); name != "" {
@@ -127,7 +126,6 @@ func AnalyseFly(w http.ResponseWriter, r *http.Request) {
 func importFly(pud *model.PUD) {
 	project := fsmanager.Project{BaseDir: Conf.BasepathStorage, Name: pud.SerialNumber, Data: pud, Date: pud.Date}
 	project.PerformAnalyse(pud)
-	return
 }
 
 func getReader(p *multipart.Part) (fi *FileInfo, pud *model.PUD) {
@@ -141,7 +139,7 @@ func getReader(p *multipart.Part) (fi *FileInfo, pud *model.PUD) {
 	}
 	pud = &model.PUD{}
 
-	b, err := ioutil.ReadAll(p)
+	b, err := io.ReadAll(p)
 	if err != nil {
 		log.Println("ERror while copying part " + err.Error())
 		return
@@ -150,7 +148,8 @@ func getReader(p *multipart.Part) (fi *FileInfo, pud *model.PUD) {
 	z, _ := zip.NewReader(br, int64(len(b)))
 	fi.Size = int64(len(b))
 	fmt.Println(fi)
-	for _, zf := range z.File {
+	if len(z.File) > 0 {
+		zf := z.File[0]
 		reader, _ := zf.Open()
 		err := json.NewDecoder(reader).Decode(pud)
 		if err != nil {
@@ -167,14 +166,14 @@ func getReader(p *multipart.Part) (fi *FileInfo, pud *model.PUD) {
 // Get file for type type
 //
 //	Consumes:
-// 	- application/json
+//	- application/json
 //
 //	Produces :
 //	- application/json
 //
 //	Schemes: https
 //
-// 	Security:
+//	Security:
 //
 //	Responses :
 //	default: jsonDataListResponse
@@ -188,7 +187,6 @@ func GetListTree(w http.ResponseWriter, r *http.Request) {
 
 // swagger:parameters getFile
 type GetFileParameters struct {
-
 	// serial number of the drone
 	// required: true
 	SerialNumber string
@@ -212,14 +210,14 @@ type GetFileResponse struct {
 // Get file for type type
 //
 //	Consumes:
-// 	- application/json
+//	- application/json
 //
 //	Produces :
 //	- multipart/form-data
 //
 //	Schemes: https
 //
-// 	Security:
+//	Security:
 //
 //	Responses :
 //	default: getFileResponse
@@ -230,15 +228,15 @@ func GetFile(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	serialNumber := vars["serialNumber"]
-	//serialNumber := r.URL.Query().Get("serialNumber")
+	// serialNumber := r.URL.Query().Get("serialNumber")
 	log.Println("SerialNumber:" + serialNumber)
-	//flyDate := r.URL.Query().Get("flyDate")
+	// flyDate := r.URL.Query().Get("flyDate")
 	flyDate := vars["flyDate"]
 	log.Println("flyDate:" + flyDate)
-	//isKmz := r.URL.Query().Get("kmz")
-	//isCsv := r.URL.Query().Get("csv")
-	//isGpx := r.URL.Query().Get("gpx")
-	//isOrginal := r.URL.Query().Get("original")
+	// isKmz := r.URL.Query().Get("kmz")
+	// isCsv := r.URL.Query().Get("csv")
+	// isGpx := r.URL.Query().Get("gpx")
+	// isOrginal := r.URL.Query().Get("original")
 	typeFile := vars["type"]
 	if serialNumber != "" && flyDate != "" {
 		if typeFile == "kmz" {
@@ -268,14 +266,11 @@ func GetFile(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-
 	}
-
 }
 
 // swagger:parameters getChart
 type GetChartParameters struct {
-
 	// serial number of the drone
 	// required: true
 	SerialNumber string
@@ -290,14 +285,14 @@ type GetChartParameters struct {
 // Get file for type type
 //
 //	Consumes:
-// 	- application/json
+//	- application/json
 //
 //	Produces :
 //	- application/json
 //
 //	Schemes: https
 //
-// 	Security:
+//	Security:
 //
 //	Responses :
 //	default:
@@ -307,9 +302,9 @@ func GetChart(w http.ResponseWriter, r *http.Request) {
 	p.BaseDir = Conf.BasepathStorage
 	vars := mux.Vars(r)
 	serialNumber := vars["serialNumber"]
-	//serialNumber := r.URL.Query().Get("serialNumber")
+	// serialNumber := r.URL.Query().Get("serialNumber")
 	log.Println("SerialNumber:" + serialNumber)
-	//flyDate := r.URL.Query().Get("flyDate")
+	// flyDate := r.URL.Query().Get("flyDate")
 	flyDate := vars["flyDate"]
 	p.LoadPUD(serialNumber, flyDate)
 	data := p.GetChartData(serialNumber, flyDate)
@@ -318,7 +313,6 @@ func GetChart(w http.ResponseWriter, r *http.Request) {
 
 // swagger:parameters getMaps
 type GetMapsParameters struct {
-
 	// serial number of the drone
 	// required: true
 	SerialNumber string
@@ -333,14 +327,14 @@ type GetMapsParameters struct {
 // Get file for type type
 //
 //	Consumes:
-// 	- application/json
+//	- application/json
 //
 //	Produces :
 //	- application/json
 //
 //	Schemes: http
 //
-// 	Security:
+//	Security:
 //
 //	Responses :
 //	default: point
@@ -351,9 +345,9 @@ func GetMaps(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	// swagger:parameters serialNumber
 	serialNumber := vars["serialNumber"]
-	//serialNumber := r.URL.Query().Get("serialNumber")
+	// serialNumber := r.URL.Query().Get("serialNumber")
 	log.Println("SerialNumber:" + serialNumber)
-	//flyDate := r.URL.Query().Get("flyDate")
+	// flyDate := r.URL.Query().Get("flyDate")
 	// swagger:parameters flydate
 	flyDate := vars["flyDate"]
 	log.Println("flyDate:" + flyDate)
@@ -380,7 +374,6 @@ func FileAsResponse(w http.ResponseWriter, streamBytes []byte, filename string) 
 	if _, err := b.WriteTo(w); err != nil {
 		log.Println(w, "%s", err.Error())
 	}
-
 }
 
 func FileInfoAsResponse(w http.ResponseWriter, fileInfo *FileInfo) {
@@ -396,5 +389,8 @@ func JsonAsResponse(w http.ResponseWriter, o interface{}) {
 		return
 	}
 	w.Header().Set("Content-Type", "application-json")
-	w.Write(js)
+	_, err = w.Write(js)
+	if err != nil {
+		fmt.Println("error while writing json")
+	}
 }

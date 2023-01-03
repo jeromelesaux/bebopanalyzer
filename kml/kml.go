@@ -40,7 +40,7 @@ type Description struct {
 	Data string `xml:",cdata"`
 }
 
-//Placemark template
+// Placemark template
 type Placemark struct {
 	Name        string       `xml:"name"`
 	Description Description  `xml:"description"`
@@ -91,7 +91,7 @@ type Document struct {
 	Placemark []Placemark `xml:"Placemark"`
 }
 
-//Kml template
+// Kml template
 type Kml struct {
 	XMLName       xml.Name `xml:"kml"`
 	Namespace     string   `xml:"xmlns,attr"`
