@@ -61,3 +61,19 @@ swagger:
 	@echo "Generate swagger json file specs"
 	@GOOS=linux GOARCH=amd64 go run ${GOPATH}/src/github.com/go-swagger/go-swagger/cmd/swagger/swagger.go generate spec -m -b ./routes > resources/swagger.json
 	@echo "Specs generate at resources/swagger.json"
+
+deps: get-linter get-vulncheck
+	@echo "Getting tools..."
+
+get-linter:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+get-vulncheck:
+	go install golang.org/x/vuln/cmd/govulncheck@latest
+
+lint:
+	@echo "Lint the whole project"
+	golangci-lint run --timeout 5m ./...
+
+vulncheck:
+	govulncheck ./...
